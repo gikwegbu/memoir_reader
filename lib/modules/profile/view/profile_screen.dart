@@ -99,8 +99,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: CircleAvatar(
         radius: 50,
         backgroundColor: Colors.grey,
-        backgroundImage: NetworkImage(
-          'https://media.istockphoto.com/photos/studio-portrait-of-attractive-20-year-old-bearded-man-picture-id1351147752?b=1&k=20&m=1351147752&s=170667a&w=0&h=txEdYegsKceJkltlTnz0hVdaX6wjlDL_vWAjEC_a6Ys=',
+        backgroundImage: AssetImage(
+          // 'https://media.istockphoto.com/photos/studio-portrait-of-attractive-20-year-old-bearded-man-picture-id1351147752?b=1&k=20&m=1351147752&s=170667a&w=0&h=txEdYegsKceJkltlTnz0hVdaX6wjlDL_vWAjEC_a6Ys=',
+          ImageUtils.dp,
         ),
       ),
     );

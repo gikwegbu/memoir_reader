@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:memoir_reader/config/routes.dart';
 import 'package:memoir_reader/modules/dashboard/dashboard_screen.dart';
 import 'package:memoir_reader/utils/const/colors.dart';
+import 'package:bot_toast/bot_toast.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,6 +17,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Memoir Reader',
+      builder: BotToastInit(),
+      navigatorObservers: [BotToastNavigatorObserver()],
       theme: ThemeData(
         // primaryColor: Colors.red,
         // primaryColorLight: Colors.green,
@@ -41,6 +45,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: const Dashboard(),
+      onGenerateRoute: Routes.generateRoute,
     );
   }
 }

@@ -50,7 +50,7 @@ class FormUtils {
       ),
       focusedBorder: const OutlineInputBorder(
         borderRadius: BorderRadius.all(Radius.circular(5)),
-        borderSide: BorderSide(color: Colors.teal, width: 1),
+        borderSide: BorderSide(color: green, width: 1),
       ),
       errorStyle: const TextStyle(
         fontSize: 14.0,
@@ -63,7 +63,7 @@ class FormUtils {
           EdgeInsets.symmetric(horizontal: 12, vertical: verticalPadding ?? 16),
       focusedErrorBorder: const OutlineInputBorder(
         borderSide: BorderSide(
-          color: Colors.teal,
+          color: green,
         ),
       ),
     );

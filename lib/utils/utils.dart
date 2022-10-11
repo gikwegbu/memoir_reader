@@ -1,8 +1,10 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dialogs/flutter_dialogs.dart';
+import 'package:memoir_reader/utils/const/image_url.dart';
 import 'package:nanoid/nanoid.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
@@ -176,7 +178,10 @@ showNotification(
     required Duration duration,
     GestureTapCallback? onTap}) {
   BotToast.showSimpleNotification(
-      title: message, duration: duration, onTap: onTap);
+    title: message,
+    duration: duration,
+    onTap: onTap,
+  );
 }
 
 showText({required String message, Duration? duration}) {
@@ -223,13 +228,30 @@ String errorMessageToString(List<String>? message) {
 
 memoirLoader() {
   BotToast.showCustomLoading(
-    backgroundColor: Colors.white70,
-    toastBuilder: (_) => Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Lottie.asset('assets/animations/loading_animation.json', height: 80),
-      ],
+    toastBuilder: (_) => ClipRRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(80.0),
+                child: Lottie.asset(
+                  ImageUtils.book,
+                  height: 60,
+                ),
+              ),
+              // Lottie.network(
+              //   // 'https://assets9.lottiefiles.com/private_files/lf30_t8f3t4.json',
+              //   // 'https://assets9.lottiefiles.com/packages/lf20_o1zjyvqh.json',
+              // "https://assets9.lottiefiles.com/packages/lf20_casefpt2.json",
+              // ),
+            ),
+          ],
+        ),
+      ),
     ),
   );
 }

@@ -1,7 +1,9 @@
 // import 'package:flutter/cupertino.dart';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:memoir_reader/modules/memoir/components/memoir_card.dart';
 import 'package:memoir_reader/utils/utils.dart';
 import 'package:memoir_reader/utils/widgets/text_utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -74,60 +76,22 @@ class _HomeScreenState extends State<HomeScreen> {
             shrinkWrap: true,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 1,
-              childAspectRatio: 2.6,
+              childAspectRatio: 2.4,
               mainAxisSpacing: 10,
             ),
             itemBuilder: (c, index) {
-              return Container(
-                margin: const EdgeInsets.symmetric(
+              return Padding(
+                padding: const EdgeInsets.symmetric(
                   horizontal: 5,
                   vertical: 5,
                 ),
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  // color: Colors.grey.withOpacity(0.4),
-                  color: Colors.grey.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    labelText("Our temperature fades ", context),
-                    ySpace(height: 10),
-                    subtext(
+                child: MemoirCard(
+                  title: "Our Temperature fades",
+                  content:
                       "The sky is blue, but we don't usually notice ast it's filled with clouds, yet we are not aware of how we are killing our environment on a daily...",
-                      context,
-                    ),
-                    const Divider(),
-                    Container(
-                      // color: Colors.red,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  subtext(
-                                    "@username",
-                                    context,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          subtext(
-                            shortDate(DateTime.now()),
-                            context,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  id: "sdkflajskdfjlasdkfa",
+                  username: 'George Ikwegbu',
+                  createdAt: DateTime.now(),
                 ),
               );
             },
@@ -162,9 +126,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      preferredSize: const Size(
+      preferredSize: Size(
         double.infinity,
-        39.0,
+        // 39.0,
+        // 59.0,
+        Platform.isIOS ? 39 : 45,
       ),
     );
   }

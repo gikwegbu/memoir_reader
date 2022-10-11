@@ -112,6 +112,7 @@ Text labelText(
   FontWeight? fontWeight,
   TextOverflow? overflow,
   double? letterSpacing,
+  double? height,
 }) {
   return Text(
     label,
@@ -125,6 +126,7 @@ Text labelText(
       fontWeight: fontWeight ?? FontWeight.w600,
       fontSize: fontSize ?? 16,
       letterSpacing: letterSpacing,
+      height: height,
     ),
   );
 }
@@ -151,19 +153,8 @@ Text subtext(
   TextOverflow? overflow,
   double height = 1.2,
 }) {
-  String finalLabel;
-  if (label.contains('U+')) {
-    final iconString = label.length > 7 ? label.substring(0, 7) : label;
-    const find = 'U+';
-    const replaceWith = '0x';
-    final emoji = int.parse(iconString.replaceAll(find, replaceWith));
-    finalLabel = String.fromCharCode(emoji);
-  } else {
-    finalLabel = label;
-  }
   return Text(
-    // label,
-    finalLabel,
+    label,
     textScaleFactor: 1.0,
     textAlign: textAlign,
     softWrap: true,
