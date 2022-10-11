@@ -22,7 +22,7 @@ class MemoirCard extends StatelessWidget {
     return InkWell(
       onTap: () {
         memoirLoader();
-        Future.delayed(const Duration(milliseconds: 5000), () {
+        Future.delayed(const Duration(milliseconds: 4000), () {
           BotToast.closeAllLoading();
           navigate(
             context,

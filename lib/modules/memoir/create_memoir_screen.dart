@@ -136,7 +136,7 @@ class _CreateMemoirScreenState extends State<CreateMemoirScreen> {
                   if (_gbKey.currentState!.validate()) {
                     _gbKey.currentState!.save();
                     memoirLoader();
-                    Future.delayed(const Duration(milliseconds: 5000), () {
+                    Future.delayed(const Duration(milliseconds: 4000), () {
                       BotToast.closeAllLoading();
                       navigate(
                         context,
