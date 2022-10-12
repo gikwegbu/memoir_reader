@@ -1,10 +1,15 @@
 import 'dart:ui';
 
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 import 'package:flutter/material.dart';
 import 'package:memoir_reader/utils/const/colors.dart';
 import 'package:memoir_reader/utils/utils.dart';
 import 'package:memoir_reader/utils/widgets/text_utils.dart';
 import 'package:avatar_glow/avatar_glow.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
 
 class MemoirDetailsScreen extends StatefulWidget {
   const MemoirDetailsScreen({
@@ -24,11 +29,31 @@ class MemoirDetailsScreen extends StatefulWidget {
   State<MemoirDetailsScreen> createState() => _MemoirDetailsScreenState();
 }
 
+enum TtsState { playing, stopped, paused, continued }
+
 class _MemoirDetailsScreenState extends State<MemoirDetailsScreen> {
+  GlobalKey<ExpandableBottomSheetState> bottomSheetKey = GlobalKey();
+
   bool _isReading = false;
+  bool _showFAB = true;
   late String _id;
   late String _title;
   late String _content;
+
+  // Voice Settings
+  FlutterTts flutterTts = FlutterTts();
+  double volume = 1.0;
+  double pitch = 1.0;
+  double speechRate = 0.5;
+  List<String>? languages;
+  String langCode = "en-US";
+
+  TtsState ttsState = TtsState.stopped;
+
+  bool get isIOS => !kIsWeb && Platform.isIOS;
+  bool get isAndroid => !kIsWeb && Platform.isAndroid;
+  bool get isWindows => !kIsWeb && Platform.isWindows;
+  bool get isWeb => kIsWeb;
 
   @override
   void initState() {
@@ -38,87 +63,393 @@ class _MemoirDetailsScreenState extends State<MemoirDetailsScreen> {
     _title = widget.title;
     _content = widget.content;
     super.initState();
+    init();
+  }
+
+  // Settings
+  Future _setAwaitOptions() async {
+    await flutterTts.awaitSpeakCompletion(true);
+  }
+
+  Future _getDefaultEngine() async {
+    var engine = await flutterTts.getDefaultEngine;
+    if (engine != null) {
+      print(engine);
+    }
+  }
+
+  Future _getDefaultVoice() async {
+    var voice = await flutterTts.getDefaultVoice;
+    if (voice != null) {
+      print(voice);
+    }
+  }
+
+  void init() async {
+    languages = List<String>.from(await flutterTts.getLanguages);
+    flutterTts = FlutterTts();
+
+    _setAwaitOptions();
+
+    if (isAndroid) {
+      _getDefaultEngine();
+      _getDefaultVoice();
+    }
+
+    flutterTts.setStartHandler(() {
+      setState(() {
+        print("Playing");
+        ttsState = TtsState.playing;
+      });
+    });
+
+    flutterTts.setCompletionHandler(() {
+      print("Complete");
+      _isReading = false;
+      ttsState = TtsState.stopped;
+      // _showFAB = bottomSheetKey.currentState?.expansionStatus ==
+      //         ExpansionStatus.contracted
+      //     ? false
+      //     : false;
+      setState(() {});
+    });
+
+    flutterTts.setCancelHandler(() {
+      setState(() {
+        print("Cancel");
+        ttsState = TtsState.stopped;
+      });
+    });
+
+    if (isWeb || isIOS || isWindows) {
+      flutterTts.setPauseHandler(() {
+        setState(() {
+          print("Paused");
+          ttsState = TtsState.paused;
+        });
+      });
+
+      flutterTts.setContinueHandler(() {
+        setState(() {
+          print("Continued");
+          ttsState = TtsState.continued;
+        });
+      });
+    }
+
+    flutterTts.setErrorHandler((msg) {
+      setState(() {
+        print("error: $msg");
+        ttsState = TtsState.stopped;
+      });
+    });
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _appBar(),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8.0),
-          child: Column(
-            children: [
-              labelText(
-                // "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum. \nLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-                _content,
-                context,
-                fontSize: 14,
-                letterSpacing: 1,
-                height: 2,
-                fontWeight: FontWeight.w500,
+      body: ExpandableBottomSheet(
+        key: bottomSheetKey,
+
+        //required
+        //This is the widget which will be overlapped by the bottom sheet.
+        // Na here the child suppose dey naaaa
+        background: Container(
+          // color: Colors.blue[800],
+          padding: const EdgeInsets.symmetric(
+            vertical: 15,
+            horizontal: 10,
+          ),
+          child: labelText(
+            _content,
+            context,
+            fontSize: 14,
+            letterSpacing: 1,
+            height: 2,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+
+        //required
+        //This is the content of the bottom sheet which will be extendable by dragging.
+        expandableContent: SizedBox(
+          // constraints: const BoxConstraints(maxHeight: 600),
+          child: SingleChildScrollView(
+            child: GestureDetector(
+              onTap: _toggleBottomSheet,
+              child: Container(
+                padding:
+                    const EdgeInsets.only(left: 15, right: 15, bottom: 58.0),
+                decoration: BoxDecoration(
+                  color: isDarkMode(context) ? black : grey,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      height: 8,
+                      width: 55,
+                      margin: const EdgeInsets.only(top: 20, bottom: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(left: 10),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 80,
+                            child: labelText("Volume", context),
+                          ),
+                          Slider(
+                            min: 0.0,
+                            max: 1.0,
+                            value: volume,
+                            onChanged: (value) {
+                              setState(() {
+                                volume = value;
+                              });
+                            },
+                          ),
+                          Container(
+                            margin: const EdgeInsets.only(left: 10),
+                            child: Text(
+                                double.parse((volume).toStringAsFixed(2))
+                                    .toString(),
+                                style: const TextStyle(fontSize: 17)),
+                          )
+                        ],
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(left: 10),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 80,
+                            child: labelText("Pitch", context),
+                          ),
+                          Slider(
+                            min: 0.5,
+                            max: 2.0,
+                            value: pitch,
+                            onChanged: (value) {
+                              setState(() {
+                                pitch = value;
+                              });
+                            },
+                          ),
+                          Container(
+                            margin: const EdgeInsets.only(left: 10),
+                            child: Text(
+                                double.parse((pitch).toStringAsFixed(2))
+                                    .toString(),
+                                style: const TextStyle(fontSize: 17)),
+                          )
+                        ],
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(left: 10),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 80,
+                            child: labelText("Speech Rate", context),
+                          ),
+                          Slider(
+                            // activeColor: isDarkMode(context) ? green : black,
+                            min: 0.0,
+                            max: 1.0,
+                            value: speechRate,
+                            onChanged: (value) {
+                              setState(() {
+                                speechRate = value;
+                              });
+                            },
+                          ),
+                          Container(
+                            margin: const EdgeInsets.only(left: 10),
+                            child: Text(
+                                double.parse((speechRate).toStringAsFixed(2))
+                                    .toString(),
+                                style: const TextStyle(fontSize: 17)),
+                          )
+                        ],
+                      ),
+                    ),
+                    if (languages != null)
+                      Container(
+                        margin: const EdgeInsets.only(left: 10),
+                        child: Row(
+                          children: [
+                            labelText("Language", context),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            xSpace(),
+                            Expanded(
+                              child: DropdownButtonFormField<String>(
+                                focusColor: Colors.white,
+                                value: langCode,
+                                iconSize: 24,
+                                elevation: 16,
+                                iconEnabledColor: green,
+                                items: languages!.map<DropdownMenuItem<String>>(
+                                    (String? value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value!,
+                                    child: Text(
+                                      value,
+                                      style:
+                                          const TextStyle(color: Colors.black),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (String? value) {
+                                  setState(() {
+                                    langCode = value!;
+                                  });
+                                },
+                              ),
+                            ),
+                            xSpace(),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ],
+            ),
           ),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: _isReading
-          ? AvatarGlow(
-              glowColor: isDarkMode(context) ? green : black,
-              endRadius: 60.0,
-              repeat: true,
-              showTwoGlows: true,
-              repeatPauseDuration: const Duration(milliseconds: 10),
-              child: GestureDetector(
-                onTap: () {
-                  _toggleReadingStat();
-                },
-                child: Material(
-                  elevation: 8.0,
-                  shape: const CircleBorder(),
-                  child: CircleAvatar(
-                    backgroundColor: isDarkMode(context) ? green : black,
-                    child: Icon(
-                      _isReading
-                          ? Icons.pause_rounded
-                          : Icons.play_arrow_rounded,
-                      size: 40,
-                      color: isDarkMode(context) ? black : isLight,
-                    ),
-                    radius: 30.0,
-                  ),
-                ),
-              ),
-            )
-          : GestureDetector(
-              onTap: () {
-                _toggleReadingStat();
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 30.0),
-                child: Material(
-                  elevation: 8.0,
-                  shape: const CircleBorder(),
-                  child: CircleAvatar(
-                    backgroundColor: isDarkMode(context) ? green : black,
-                    child: Icon(
-                      _isReading
-                          ? Icons.pause_rounded
-                          : Icons.play_arrow_rounded,
-                      size: 40,
-                      color: isDarkMode(context) ? black : isLight,
-                    ),
-                    radius: 30.0,
-                  ),
-                ),
-              ),
-            ),
+      floatingActionButton: _getFAB(),
     );
   }
 
   void _toggleReadingStat() {
     _isReading = !_isReading;
+    setState(() {});
+  }
+
+  void initSetting() async {
+    await flutterTts.setVolume(volume);
+    await flutterTts.setPitch(pitch);
+    await flutterTts.setSpeechRate(speechRate);
+    await flutterTts.setLanguage(langCode);
+  }
+
+  void _speak() async {
+    initSetting();
+    await flutterTts.speak(_content);
+  }
+
+  get isPlaying => ttsState == TtsState.playing;
+  get isStopped => ttsState == TtsState.stopped;
+  get isPaused => ttsState == TtsState.paused;
+  get isContinued => ttsState == TtsState.continued;
+
+  void _stop() async {
+    await flutterTts.stop();
+  }
+
+  void _pause() async {
+    await flutterTts.pause();
+  }
+
+  @override
+  void dispose() {
+    _stop();
+    super.dispose();
+  }
+
+  Widget _getFAB() {
+    if (_showFAB ||
+        bottomSheetKey.currentState?.expansionStatus ==
+                ExpansionStatus.expanded &&
+            // ignore: unrelated_type_equality_checks
+            TtsState.stopped == true) {
+      return _fab();
+    } else {
+      return Container();
+    }
+  }
+
+  Widget _fab() {
+    return _isReading
+        ? AvatarGlow(
+            glowColor: isDarkMode(context) ? green : black,
+            endRadius: 60.0,
+            repeat: true,
+            showTwoGlows: true,
+            repeatPauseDuration: const Duration(milliseconds: 10),
+            child: GestureDetector(
+              onTap: () {
+                _toggleReadingStat();
+                // _stop();
+                _pause();
+              },
+              child: Material(
+                elevation: 8.0,
+                shape: const CircleBorder(),
+                child: CircleAvatar(
+                  backgroundColor: isDarkMode(context) ? green : black,
+                  child: Icon(
+                    _isReading ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                    size: 40,
+                    color: isDarkMode(context) ? black : isLight,
+                  ),
+                  radius: 30.0,
+                ),
+              ),
+            ),
+          )
+        : GestureDetector(
+            onTap: () {
+              _speak();
+              _toggleReadingStat();
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 30.0),
+              child: Material(
+                elevation: 8.0,
+                shape: const CircleBorder(),
+                child: CircleAvatar(
+                  backgroundColor: isDarkMode(context) ? green : black,
+                  child: Icon(
+                    _isReading ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                    size: 40,
+                    color: isDarkMode(context) ? black : isLight,
+                  ),
+                  radius: 30.0,
+                ),
+              ),
+            ),
+          );
+  }
+
+  int _contentAmount = 0;
+
+  void _expandBottomSheet() => bottomSheetKey.currentState!.expand();
+
+  void _contractBottomSheet() => bottomSheetKey.currentState!.contract();
+
+  bool _bottomSheetStatus() =>
+      bottomSheetKey.currentState!.expansionStatus ==
+      ExpansionStatus.contracted;
+
+  void _toggleBottomSheet() {
+    _bottomSheetStatus() ? _expandBottomSheet() : _contractBottomSheet();
+    _showFAB = !_showFAB;
     setState(() {});
   }
 
@@ -129,7 +460,6 @@ class _MemoirDetailsScreenState extends State<MemoirDetailsScreen> {
           filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
           child: AppBar(
             backgroundColor: Colors.black.withOpacity(0.2),
-            // title: labelText(_title, context),
             title: Tooltip(
               message: _title,
               decoration: BoxDecoration(
@@ -152,9 +482,7 @@ class _MemoirDetailsScreenState extends State<MemoirDetailsScreen> {
               IconButton(
                 splashRadius: 20,
                 onPressed: () {
-                  // Display bottom sheet for settings...
-                  // This saves generally...
-                  // You could add a preset for voice...
+                  _toggleBottomSheet();
                 },
                 icon: const Icon(Icons.volume_down),
               ),
@@ -179,3 +507,5 @@ class MemoirDetailsScreenArguements {
     required this.content,
   });
 }
+
+// Just like the indicator, use the bot toast to show this one too...

@@ -1,9 +1,19 @@
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:memoir_reader/modules/profile/view/components/ai_settings.dart';
+import 'package:memoir_reader/modules/profile/view/components/avatar_settings.dart';
+import 'package:memoir_reader/modules/profile/view/components/notification_settings.dart';
+import 'package:memoir_reader/modules/profile/view/components/privacy_settings.dart';
+import 'package:memoir_reader/modules/profile/view/components/profile_settings.dart';
 import 'package:memoir_reader/utils/const/colors.dart';
 import 'package:memoir_reader/utils/const/image_url.dart';
 import 'package:memoir_reader/utils/utils.dart';
 import 'package:memoir_reader/utils/widgets/text_utils.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -13,15 +23,63 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  GlobalKey<ExpandableBottomSheetState> bottomSheetKey = GlobalKey();
+  String _bottomSheetWidget = "";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          _coverImage(),
-          _bottomSection(),
-        ],
+      body: ExpandableBottomSheet(
+        key: bottomSheetKey,
+        background: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            _coverImage(),
+            _bottomSection(),
+          ],
+        ),
+        expandableContent: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            // filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.only(bottom: 30),
+              decoration: const BoxDecoration(
+                // color: isDarkMode(context) ? Colors.transparent : grey,
+                color: Colors.transparent,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              child: Column(
+                children: [
+                  GestureDetector(
+                    onTap: _contractBottomSheet,
+                    child: Container(
+                      height: 8,
+                      width: 55,
+                      margin: const EdgeInsets.only(top: 20, bottom: 20),
+                      decoration: BoxDecoration(
+                        color: black,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    width: double.infinity,
+                    child: _sheetWidget(item: _bottomSheetWidget),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -34,7 +92,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SizedBox(
           child: Image.asset(
             ImageUtils.profileHeader,
-            // 'https://mir-s3-cdn-cf.behance.net/project_modules/2800_opt_1/57dea783589529.5d412d47cbabf.jpg',
             width: double.infinity,
             height: 250,
             fit: BoxFit.cover,
@@ -66,8 +123,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _contentSection(),
         _profileImage(),
         Positioned(
-          // top: 20,
-          // right: 1,
           child: Container(
             padding: const EdgeInsets.all(5),
             margin: const EdgeInsets.only(
@@ -81,7 +136,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             child: InkWell(
-              onTap: () {},
+              onTap: () {
+                _openBottomSheet('avatar');
+              },
               child: Icon(
                 Icons.camera_alt,
                 color: isDarkMode(context) ? isLight : isDark,
@@ -143,24 +200,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _socialIcons(
-                icon: Icons.facebook_rounded,
-                press: () {},
-              ),
-              _socialIcons(
-                icon: Icons.email_rounded,
-                press: () {},
-              ),
+                  icon: FontAwesomeIcons.whatsapp,
+                  url: Platform.isAndroid
+                      ? "https://wa.me/+2348101570258/?text=${Uri.parse('Hi George, I would want to work with you on a flutter project.')}"
+                      : "https://api.whatsapp.com/send?phone=+2348101570258=${Uri.parse('Hi George, I would want to work with you on a flutter project.')}"),
+              // _socialIcons(
+              //   icon: Icons.email_rounded,
+              //   url: "https:www.facebook.com",
+              // ),
               _socialIcons(
                 icon: FontAwesomeIcons.twitter,
-                press: () {},
+                url: "https://twitter.com/gikwegbu",
               ),
               _socialIcons(
                 icon: FontAwesomeIcons.instagram,
-                press: () {},
+                url: "https://www.instagram.com/g.ikwegbu/",
               ),
               _socialIcons(
                 icon: FontAwesomeIcons.linkedinIn,
-                press: () {},
+                url: "http://linkedin.com/in/GIkwegbu",
               ),
             ],
           ),
@@ -176,28 +234,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _profileItem(
             title: 'Profile Settings',
             subTitle: 'update & modify your profile',
-            press: () {},
+            item: "profile",
             icon: Icons.account_circle,
           ),
           ySpace(height: 10),
           _profileItem(
             title: 'Privacy',
             subTitle: 'change password',
-            press: () {},
+            item: "privacy",
             icon: Icons.security,
           ),
           ySpace(height: 10),
           _profileItem(
             title: 'Notification',
             subTitle: 'change notification settings',
-            press: () {},
+            item: "notification",
             icon: Icons.notification_add,
           ),
           ySpace(height: 10),
           _profileItem(
             title: 'AI Reader',
             subTitle: 'change AI settings',
-            press: () {},
+            item: 'ai',
             icon: Icons.air_sharp,
           ),
         ],
@@ -205,10 +263,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  IconButton _socialIcons({IconData? icon, Function? press}) {
+  IconButton _socialIcons({IconData? icon, String? url}) {
+    // final Uri params = Uri(
+    //   scheme: 'mailto',
+    //   path: 'email@example.com',
+    //   query:
+    //       'subject=App Feedback&body=App Version 3.23', //add subject and body here
+    // );
+    final Uri _url = Uri.parse("$url");
     return IconButton(
       splashRadius: 20,
-      onPressed: () => press,
+      onPressed: () async {
+        if (!await launchUrl(_url)) {
+          throw 'Could not launch $_url';
+        }
+      },
       color: isDarkMode(context) ? isLight : blue,
       icon: Icon(
         icon,
@@ -221,11 +290,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   InkWell _profileItem({
     String? title,
     String? subTitle,
-    Function? press,
+    String? item,
     IconData? icon,
   }) {
     return InkWell(
-      onTap: () => press,
+      onTap: () {
+        _openBottomSheet(item);
+      },
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(8),
@@ -279,5 +350,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
     );
+  }
+
+  void _expandBottomSheet() => bottomSheetKey.currentState!.expand();
+
+  void _contractBottomSheet() => bottomSheetKey.currentState!.contract();
+
+  bool _bottomSheetStatus() =>
+      bottomSheetKey.currentState!.expansionStatus ==
+      ExpansionStatus.contracted;
+
+  void _openBottomSheet(val) {
+    _bottomSheetWidget = val;
+    _bottomSheetStatus() ? _expandBottomSheet() : _contractBottomSheet();
+    setState(() {});
+  }
+
+  Widget _sheetWidget({String? item}) {
+    switch (item) {
+      case 'profile':
+        return const ProfileSettings();
+      case 'privacy':
+        return const PrivacySettings();
+      case 'notification':
+        return const NotificationSettings();
+      case 'ai':
+        return const AiSettings();
+      case 'avatar':
+        return const AvatarSettings();
+      default:
+        return Container();
+    }
   }
 }

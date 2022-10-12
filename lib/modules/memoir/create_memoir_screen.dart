@@ -63,12 +63,12 @@ class _CreateMemoirScreenState extends State<CreateMemoirScreen> {
                       "Content",
                       form: FormBuilderTextField(
                         name: "Content",
-                        inputFormatters: [
-                          LengthLimitingTextInputFormatter(1000)
-                        ],
+                        // inputFormatters: [
+                        //   LengthLimitingTextInputFormatter(1000)
+                        // ],
                         decoration: FormUtils.formDecoration(),
                         maxLines: 10,
-                        maxLength: 1000,
+                        // maxLength: 1000,
                         style: FORM_STYLE,
                         onSaved: (value) => _formValues['content'] = value,
                         validator: FormBuilderValidators.compose(

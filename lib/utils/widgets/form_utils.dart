@@ -189,19 +189,20 @@ class _FormLabelState extends State<FormLabel> {
       popupDirection: TooltipDirection.up,
       // arrowTipDistance: 15.0,
       arrowBaseWidth: 40.0,
-      borderColor: Colors.blue.shade100,
-      backgroundColor: Colors.blue.shade100,
+      borderColor: green.withOpacity(0.6),
+      backgroundColor: black,
       showCloseButton: ShowCloseButton.none,
-      closeButtonColor: Colors.white,
+      closeButtonColor: Colors.transparent,
       closeButtonSize: 18,
 
       content: Material(
-        color: Colors.blue.shade100,
+        // color: Colors.blue.shade100,
+        color: black,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Icon(
-              Icons.person,
+              Icons.info,
               color: Colors.white,
               size: 20,
             ),
@@ -215,17 +216,17 @@ class _FormLabelState extends State<FormLabel> {
                 height: 1.5,
               ),
             ),
-            InkWell(
-              onTap: () {},
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 2.0),
-                child: Icon(
-                  Icons.clear,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
-            ),
+            // InkWell(
+            //   onTap: () {},
+            //   child: const Padding(
+            //     padding: EdgeInsets.symmetric(horizontal: 2.0),
+            //     child: Icon(
+            //       Icons.clear,
+            //       color: Colors.white,
+            //       size: 20,
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),
