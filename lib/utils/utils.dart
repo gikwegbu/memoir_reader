@@ -4,6 +4,9 @@ import 'dart:ui';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dialogs/flutter_dialogs.dart';
+import 'package:hive/hive.dart';
+import 'package:memoir_reader/modules/profile/model/ai_settings_model.dart';
+import 'package:memoir_reader/modules/profile/model/profile_model.dart';
 import 'package:memoir_reader/utils/const/image_url.dart';
 import 'package:nanoid/nanoid.dart';
 import 'package:intl/intl.dart';
@@ -373,4 +376,64 @@ extension StripWhiteSpace on String {
   String stripWhiteSpaces() {
     return replaceAll(' ', '');
   }
+}
+
+Future<ProfileModel> getUserProfileDetails() async {
+  var box = Hive.box<ProfileModel>('profileBox');
+  return box.get('profileDetails') != null
+      ? box.get('profileDetails') as ProfileModel
+      : ProfileModel();
+}
+
+Future<AiSettingsModel> getAiSettings() async {
+  var box = Hive.box<AiSettingsModel>('aiBox');
+  return box.get('aiDetails') != null
+      ? box.get('aiDetails') as AiSettingsModel
+      : AiSettingsModel();
+}
+
+Future<bool> LogoutUser(context) async {
+  final res = await showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+          return AlertDialog(
+            backgroundColor: black,
+            insetPadding: const EdgeInsets.all(10),
+            title: labelText(
+              "Are you sure you want to quit?",
+              context,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              // color: isDarkMode(context) ? isLight : black,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: labelText("cancel", context),
+              ),
+              TextButton(
+                onPressed: () {
+                  Hive.deleteFromDisk();
+                  Navigator.of(context).pop(true);
+                  // navigateAndClearAll(context, SignInScreen.routeName);
+                },
+                child: labelText(
+                  "Logout",
+                  context,
+                  fontSize: 12,
+                  color: Colors.red,
+                ),
+              )
+            ],
+          );
+        },
+      );
+    },
+  );
+  return res;
 }

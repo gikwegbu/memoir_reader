@@ -1,17 +1,20 @@
+import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memoir_reader/modules/components/custom_button.dart';
-import 'package:memoir_reader/modules/test_screen.dart';
+import 'package:memoir_reader/modules/profile/model/profile_model.dart';
+import 'package:memoir_reader/modules/profile/viewModel/profile_provider.dart';
 import 'package:memoir_reader/utils/const/colors.dart';
 import 'package:memoir_reader/utils/utils.dart';
 import 'package:memoir_reader/utils/widgets/form_utils.dart';
 import 'package:memoir_reader/utils/widgets/text_utils.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:provider/provider.dart';
 
 class ProfileSettings extends StatefulWidget {
-  const ProfileSettings({
-    Key? key,
-  }) : super(key: key);
+  const ProfileSettings({Key? key, required this.sheetKey}) : super(key: key);
+
+  final GlobalKey<ExpandableBottomSheetState> sheetKey;
 
   @override
   State<ProfileSettings> createState() => _ProfileSettingsState();
@@ -20,6 +23,14 @@ class ProfileSettings extends StatefulWidget {
 class _ProfileSettingsState extends State<ProfileSettings> {
   final _gbKey = GlobalKey<FormBuilderState>();
   var _formValues = {};
+  ProfileModel _userProfile = ProfileModel();
+
+  @override
+  void initState() {
+    _userProfile = context.read<ProfileProvider>().profileDetails;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -43,6 +54,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                 "Fullname",
                 form: FormBuilderTextField(
                   name: "fullname",
+                  initialValue: _userProfile.fullname ?? '',
                   inputFormatters: [LengthLimitingTextInputFormatter(30)],
                   decoration: FormUtils.formDecoration(),
                   maxLength: 30,
@@ -61,6 +73,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                 "Username",
                 form: FormBuilderTextField(
                   name: "username",
+                  initialValue: _userProfile.username ?? '',
                   inputFormatters: [LengthLimitingTextInputFormatter(15)],
                   decoration: FormUtils.formDecoration(),
                   // maxLines: 10,
@@ -72,7 +85,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                       FormBuilderValidators.required(
                         context,
                         errorText: "Field can't be empty",
-                      ),
+                      )
                     ],
                   ),
                 ),
@@ -82,6 +95,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                 "Whatsapp Number",
                 form: FormBuilderTextField(
                   name: "whatsapp",
+                  initialValue: _userProfile.whatsappUrl ?? '',
                   enableSuggestions: true,
                   keyboardType: TextInputType.phone,
                   decoration: FormUtils.formDecoration(
@@ -95,6 +109,10 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                         context,
                         errorText: "Field can't be empty",
                       ),
+                      FormBuilderValidators.integer(
+                        context,
+                        errorText: "Enter a valid number",
+                      ),
                     ],
                   ),
                 ),
@@ -106,6 +124,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                 form: FormBuilderTextField(
                   enableSuggestions: true,
                   name: "twitter",
+                  initialValue: _userProfile.twitterUrl ?? '',
                   decoration: FormUtils.formDecoration(
                     hintText: "https://",
                   ),
@@ -116,6 +135,10 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                       FormBuilderValidators.required(
                         context,
                         errorText: "Field can't be empty",
+                      ),
+                      FormBuilderValidators.url(
+                        context,
+                        errorText: "Enter a valid url",
                       ),
                     ],
                   ),
@@ -126,23 +149,55 @@ class _ProfileSettingsState extends State<ProfileSettings> {
               _formBuilder(
                 "LinkedIn Profile",
                 form: FormBuilderTextField(
-                  name: "twitter",
+                  name: "linkedIn",
+                  initialValue: _userProfile.linkedinUrl ?? '',
                   enableSuggestions: true,
                   decoration: FormUtils.formDecoration(
                     hintText: "https://",
                   ),
                   style: FORM_STYLE,
-                  onSaved: (value) => _formValues['twitter'] = value,
+                  onSaved: (value) => _formValues['linkedIn'] = value,
                   validator: FormBuilderValidators.compose(
                     [
                       FormBuilderValidators.required(
                         context,
                         errorText: "Field can't be empty",
                       ),
+                      FormBuilderValidators.url(
+                        context,
+                        errorText: "Enter a valid url",
+                      ),
                     ],
                   ),
                 ),
                 hint: "Paste your linkedIn profile link in this field.",
+              ),
+              ySpace(height: 5),
+              _formBuilder(
+                "Instagram Profile",
+                form: FormBuilderTextField(
+                  name: "instagram",
+                  initialValue: _userProfile.instagramUrl ?? '',
+                  enableSuggestions: true,
+                  decoration: FormUtils.formDecoration(
+                    hintText: "https://",
+                  ),
+                  style: FORM_STYLE,
+                  onSaved: (value) => _formValues['instagram'] = value,
+                  validator: FormBuilderValidators.compose(
+                    [
+                      FormBuilderValidators.required(
+                        context,
+                        errorText: "Field can't be empty",
+                      ),
+                      FormBuilderValidators.url(
+                        context,
+                        errorText: "Enter a valid url",
+                      ),
+                    ],
+                  ),
+                ),
+                hint: "Paste your Instagram profile link in this field.",
               ),
               ySpace(),
               Padding(
@@ -150,9 +205,8 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                 child: CustomButton(
                   title: "Update",
                   press: () {
-                    navigate(context, TestScreen.routeName);
                     if (_gbKey.currentState!.validate()) {
-                      print("Caching.....");
+                      _updateProfile();
                     }
                   },
                 ),
@@ -162,6 +216,30 @@ class _ProfileSettingsState extends State<ProfileSettings> {
         ),
       ],
     );
+  }
+
+  void _updateProfile() {
+    _gbKey.currentState!.save();
+    bool res = context.read<ProfileProvider>().updateProfile(
+          _userProfile.copyWith(
+            fullname: _formValues['fullname'],
+            username: _usernameChecker(_formValues['username']),
+            whatsappUrl: _formValues['whatsapp'],
+            twitterUrl: _formValues['twitter'],
+            instagramUrl: _formValues['instagram'],
+            linkedinUrl: _formValues['linkedIn'],
+          ),
+        );
+    if (res) {
+      widget.sheetKey.currentState?.contract();
+    }
+  }
+
+  String _usernameChecker(val) {
+    var _username = val.replaceAll(' ', '');
+    return _username[0] == '@'
+        ? _username.substring(1, _username.length)
+        : _username;
   }
 
   Column _formBuilder(String label, {required Widget form, String? hint}) {

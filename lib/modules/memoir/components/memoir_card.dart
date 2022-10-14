@@ -45,7 +45,15 @@ class MemoirCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            labelText(title, context),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                labelText(title, context),
+                // Add this delete to the preview screen, then when click, pops the screen
+                // Also include the edit button too, when clicked, pops the screen and takes you to the edit screen...
+              ],
+            ),
+            const Divider(),
             ySpace(height: 10),
             subtext(
               content,

@@ -4,7 +4,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:memoir_reader/modules/memoir/components/memoir_card.dart';
-import 'package:memoir_reader/utils/utils.dart';
 import 'package:memoir_reader/utils/widgets/text_utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
@@ -43,23 +42,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   backgroundColor: Colors.transparent,
-      //   title: labelText("mR", context),
-      //   // automaticallyImplyLeading: false,
-      //   actions: [
-      //     IconButton(
-      //       splashRadius: 20,
-      //       onPressed: () {},
-      //       icon: const Icon(Icons.search),
-      //     ),
-      //     IconButton(
-      //       splashRadius: 20,
-      //       onPressed: () {},
-      //       icon: const Icon(Icons.notifications),
-      //     ),
-      //   ],
-      // ),
       extendBodyBehindAppBar: true,
       appBar: _appBar(),
       body: Padding(
@@ -72,31 +54,41 @@ class _HomeScreenState extends State<HomeScreen> {
           onRefresh: _onRefresh,
           onLoading:
               _onLoading, // Maker a request to BE to request for more data...
-          child: GridView.builder(
-            shrinkWrap: true,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 1,
-              childAspectRatio: 2.4,
-              mainAxisSpacing: 10,
-            ),
-            itemBuilder: (c, index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 5,
-                  vertical: 5,
+          child: items.isEmpty
+              ? Center(
+                  child: labelText(
+                    "All available memoirs 📝, will appear here.",
+                    context,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    textAlign: TextAlign.center,
+                  ),
+                )
+              : GridView.builder(
+                  shrinkWrap: true,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 1,
+                    childAspectRatio: 2.1,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemBuilder: (c, index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 5,
+                        vertical: 5,
+                      ),
+                      child: MemoirCard(
+                        title: "Our Temperature fades",
+                        content:
+                            "The sky is blue, but we don't usually notice ast it's filled with clouds, yet we are not aware of how we are killing our environment on a daily...",
+                        id: "sdkflajskdfjlasdkfa",
+                        username: 'George Ikwegbu',
+                        createdAt: DateTime.now(),
+                      ),
+                    );
+                  },
+                  itemCount: items.length,
                 ),
-                child: MemoirCard(
-                  title: "Our Temperature fades",
-                  content:
-                      "The sky is blue, but we don't usually notice ast it's filled with clouds, yet we are not aware of how we are killing our environment on a daily...",
-                  id: "sdkflajskdfjlasdkfa",
-                  username: 'George Ikwegbu',
-                  createdAt: DateTime.now(),
-                ),
-              );
-            },
-            itemCount: items.length,
-          ),
         ),
       ),
     );

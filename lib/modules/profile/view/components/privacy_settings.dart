@@ -1,16 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:memoir_reader/modules/components/custom_button.dart';
+import 'package:memoir_reader/modules/profile/model/profile_model.dart';
+import 'package:memoir_reader/modules/profile/viewModel/profile_provider.dart';
 import 'package:memoir_reader/modules/test_screen.dart';
 import 'package:memoir_reader/utils/const/colors.dart';
 import 'package:memoir_reader/utils/utils.dart';
 import 'package:memoir_reader/utils/widgets/form_utils.dart';
 import 'package:memoir_reader/utils/widgets/text_utils.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:provider/provider.dart';
 
-class PrivacySettings extends StatelessWidget {
+class PrivacySettings extends StatefulWidget {
   const PrivacySettings({
     Key? key,
   }) : super(key: key);
+
+  @override
+  State<PrivacySettings> createState() => _PrivacySettingsState();
+}
+
+class _PrivacySettingsState extends State<PrivacySettings> {
+  ProfileModel _userProfile = ProfileModel();
+
+  @override
+  void initState() {
+    _userProfile = context.read<ProfileProvider>().profileDetails;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

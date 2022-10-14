@@ -18,45 +18,48 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: CurvedNavigationBar(
-        color:
-            isDarkMode(context) ? Colors.grey.withOpacity(0.4) : Colors.white,
-        buttonBackgroundColor: isDarkMode(context) ? green : Colors.white,
-        // backgroundColor: isDark,
-        backgroundColor: isDarkMode(context) ? isDark : Colors.transparent,
-        key: _bottomNavigationKey,
-        items: const <Widget>[
-          Icon(
-            Icons.home_work,
-            size: 30,
-            color: black,
-          ),
-          Icon(
-            Icons.add,
-            size: 30,
-            color: black,
-          ),
-          Icon(
-            Icons.account_circle,
-            size: 30,
-            color: black,
-          ),
-        ],
-        onTap: (index) {
-          _navSwitcher(index);
-        },
-      ),
-      body: Container(
-        // color: Colors.blueAccent,
-        width: double.infinity,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Expanded(
-              child: DisplayWidget(currentTab: _page),
+    return WillPopScope(
+      onWillPop: () async => LogoutUser(context),
+      child: Scaffold(
+        bottomNavigationBar: CurvedNavigationBar(
+          color:
+              isDarkMode(context) ? Colors.grey.withOpacity(0.4) : Colors.white,
+          buttonBackgroundColor: isDarkMode(context) ? green : Colors.white,
+          // backgroundColor: isDark,
+          backgroundColor: isDarkMode(context) ? isDark : Colors.transparent,
+          key: _bottomNavigationKey,
+          items: const <Widget>[
+            Icon(
+              Icons.home_work,
+              size: 30,
+              color: black,
+            ),
+            Icon(
+              Icons.add,
+              size: 30,
+              color: black,
+            ),
+            Icon(
+              Icons.account_circle,
+              size: 30,
+              color: black,
             ),
           ],
+          onTap: (index) {
+            _navSwitcher(index);
+          },
+        ),
+        body: Container(
+          // color: Colors.blueAccent,
+          width: double.infinity,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Expanded(
+                child: DisplayWidget(currentTab: _page),
+              ),
+            ],
+          ),
         ),
       ),
     );

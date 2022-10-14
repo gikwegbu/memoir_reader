@@ -2,16 +2,20 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:memoir_reader/modules/profile/model/profile_model.dart';
 import 'package:memoir_reader/modules/profile/view/components/ai_settings.dart';
 import 'package:memoir_reader/modules/profile/view/components/avatar_settings.dart';
 import 'package:memoir_reader/modules/profile/view/components/notification_settings.dart';
 import 'package:memoir_reader/modules/profile/view/components/privacy_settings.dart';
 import 'package:memoir_reader/modules/profile/view/components/profile_settings.dart';
+import 'package:memoir_reader/modules/profile/view/my_memoirs.dart';
+import 'package:memoir_reader/modules/profile/viewModel/profile_provider.dart';
 import 'package:memoir_reader/utils/const/colors.dart';
 import 'package:memoir_reader/utils/const/image_url.dart';
 import 'package:memoir_reader/utils/utils.dart';
 import 'package:memoir_reader/utils/widgets/text_utils.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
 
@@ -25,8 +29,18 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   GlobalKey<ExpandableBottomSheetState> bottomSheetKey = GlobalKey();
   String _bottomSheetWidget = "";
+
+  ProfileModel _userProfile = ProfileModel();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    _userProfile =
+        Provider.of<ProfileProvider>(context, listen: true).profileDetails;
     return Scaffold(
       body: ExpandableBottomSheet(
         key: bottomSheetKey,
@@ -49,7 +63,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: double.infinity,
               padding: const EdgeInsets.only(bottom: 30),
               decoration: const BoxDecoration(
-                // color: isDarkMode(context) ? Colors.transparent : grey,
                 color: Colors.transparent,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(20),
@@ -151,14 +164,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Positioned _profileImage() {
-    return const Positioned(
+    return Positioned(
       top: -70,
       child: CircleAvatar(
         radius: 50,
         backgroundColor: Colors.grey,
         backgroundImage: AssetImage(
           // 'https://media.istockphoto.com/photos/studio-portrait-of-attractive-20-year-old-bearded-man-picture-id1351147752?b=1&k=20&m=1351147752&s=170667a&w=0&h=txEdYegsKceJkltlTnz0hVdaX6wjlDL_vWAjEC_a6Ys=',
-          ImageUtils.dp,
+          // ImageUtils.dp,
+          _userProfile.imageUrl ?? ImageUtils.dp,
         ),
       ),
     );
@@ -178,7 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              labelText("George Ikwegbu", context),
+              labelText(_userProfile.fullname ?? 'Fullname', context),
               const Icon(
                 Icons.verified,
                 size: 15,
@@ -188,7 +202,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           Center(
             child: subtext(
-              "@gikwegbu",
+              // "@gikwegbu",
+              "@${_userProfile.username ?? 'username'}",
               context,
               height: 1.5,
               fontSize: 12,
@@ -202,23 +217,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _socialIcons(
                   icon: FontAwesomeIcons.whatsapp,
                   url: Platform.isAndroid
-                      ? "https://wa.me/+2348101570258/?text=${Uri.parse('Hi George, I would want to work with you on a flutter project.')}"
-                      : "https://api.whatsapp.com/send?phone=+2348101570258=${Uri.parse('Hi George, I would want to work with you on a flutter project.')}"),
+                      ? "https://wa.me/${_userProfile.whatsappUrl}/?text=${Uri.parse('Hi George, I would want to work with you on a flutter project.')}"
+                      : "https://api.whatsapp.com/send?phone=${_userProfile.whatsappUrl}=${Uri.parse('Hi George, I would want to work with you on a flutter project.')}"),
               // _socialIcons(
               //   icon: Icons.email_rounded,
               //   url: "https:www.facebook.com",
               // ),
               _socialIcons(
                 icon: FontAwesomeIcons.twitter,
-                url: "https://twitter.com/gikwegbu",
+                // url: "https://twitter.com/gikwegbu",
+                url: "${_userProfile.twitterUrl}",
               ),
               _socialIcons(
                 icon: FontAwesomeIcons.instagram,
-                url: "https://www.instagram.com/g.ikwegbu/",
+                // url: "https://www.instagram.com/g.ikwegbu/",
+                url: "${_userProfile.instagramUrl}",
               ),
               _socialIcons(
                 icon: FontAwesomeIcons.linkedinIn,
-                url: "http://linkedin.com/in/GIkwegbu",
+                // url: "http://linkedin.com/in/GIkwegbu",
+                url: "${_userProfile.linkedinUrl}",
               ),
             ],
           ),
@@ -258,6 +276,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
             item: 'ai',
             icon: Icons.air_sharp,
           ),
+          ySpace(),
+          labelText(
+            "MEMOIRS",
+            context,
+            fontWeight: FontWeight.bold,
+            color: isDarkMode(context) ? isLight : Colors.grey,
+          ),
+          ySpace(height: 10),
+          _profileItem(
+            title: 'My Memoirs',
+            subTitle: 'view all your written memoirs',
+            item: 'ai',
+            icon: Icons.bookmark_add,
+            type: 'memoir',
+          ),
+          ySpace(height: 10),
         ],
       ),
     );
@@ -292,10 +326,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     String? subTitle,
     String? item,
     IconData? icon,
+    String? type,
   }) {
     return InkWell(
       onTap: () {
-        _openBottomSheet(item);
+        type == 'memoir'
+            ? navigate(context, MyMemoirScreenScreen.routeName)
+            : _openBottomSheet(item);
       },
       child: Container(
         width: double.infinity,
@@ -352,9 +389,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _expandBottomSheet() => bottomSheetKey.currentState!.expand();
+  void _expandBottomSheet() => bottomSheetKey.currentState?.expand();
 
-  void _contractBottomSheet() => bottomSheetKey.currentState!.contract();
+  void _contractBottomSheet() => bottomSheetKey.currentState?.contract();
 
   bool _bottomSheetStatus() =>
       bottomSheetKey.currentState!.expansionStatus ==
@@ -369,15 +406,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _sheetWidget({String? item}) {
     switch (item) {
       case 'profile':
-        return const ProfileSettings();
+        return ProfileSettings(sheetKey: bottomSheetKey);
+      // return const ProfileSettings();
       case 'privacy':
         return const PrivacySettings();
       case 'notification':
         return const NotificationSettings();
       case 'ai':
-        return const AiSettings();
+        return  AiSettings(sheetKey: bottomSheetKey);
       case 'avatar':
-        return const AvatarSettings();
+        return  AvatarSettings(sheetKey: bottomSheetKey);
       default:
         return Container();
     }

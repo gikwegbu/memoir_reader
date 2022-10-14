@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:memoir_reader/modules/dashboard/dashboard_screen.dart';
 import 'package:memoir_reader/modules/memoir/memoir_details_screen.dart';
+import 'package:memoir_reader/modules/profile/view/my_memoirs.dart';
+import 'package:memoir_reader/modules/splash_screen.dart';
 import 'package:memoir_reader/modules/test_screen.dart';
 
 class Routes {
@@ -24,6 +26,12 @@ class Routes {
       case TestScreen.routeName:
         const page = TestScreen();
         return MaterialPageRoute(builder: (_) => page);
+      case MyMemoirScreenScreen.routeName:
+        const page = MyMemoirScreenScreen();
+        return MaterialPageRoute(builder: (_) => page);
+      case SplashScreen.routeName:
+        const page = SplashScreen();
+        return MaterialPageRoute(builder: (_) => page);
 
       default:
         const page = Dashboard();
@@ -31,3 +39,6 @@ class Routes {
     }
   }
 }
+
+// http://api.mediastack.com/v1/news?access_key=5b960bcf0220600a99a0d1242c9a0492
+// http://api.mediastack.com/v1/news?access_key=5b960bcf0220600a99a0d1242c9a0492&categories=entertainment&languages=en

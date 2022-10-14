@@ -4,12 +4,15 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:flutter/material.dart';
+import 'package:memoir_reader/modules/profile/model/ai_settings_model.dart';
+import 'package:memoir_reader/modules/profile/viewModel/ai_settings_provider.dart';
 import 'package:memoir_reader/utils/const/colors.dart';
 import 'package:memoir_reader/utils/utils.dart';
 import 'package:memoir_reader/utils/widgets/text_utils.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
+import 'package:provider/provider.dart';
 
 class MemoirDetailsScreen extends StatefulWidget {
   const MemoirDetailsScreen({
@@ -33,6 +36,7 @@ enum TtsState { playing, stopped, paused, continued }
 
 class _MemoirDetailsScreenState extends State<MemoirDetailsScreen> {
   GlobalKey<ExpandableBottomSheetState> bottomSheetKey = GlobalKey();
+  AiSettingsModel _aiSettings = AiSettingsModel();
 
   bool _isReading = false;
   bool _showFAB = true;
@@ -42,11 +46,11 @@ class _MemoirDetailsScreenState extends State<MemoirDetailsScreen> {
 
   // Voice Settings
   FlutterTts flutterTts = FlutterTts();
-  double volume = 1.0;
-  double pitch = 1.0;
-  double speechRate = 0.5;
+  double? volume;
+  double? pitch;
+  double? speechRate;
   List<String>? languages;
-  String langCode = "en-US";
+  String? langCode;
 
   TtsState ttsState = TtsState.stopped;
 
@@ -58,10 +62,17 @@ class _MemoirDetailsScreenState extends State<MemoirDetailsScreen> {
   @override
   void initState() {
     // TODO: implement initState
+    _aiSettings = context.read<AiProvider>().aiDetails;
     _isReading = false;
     _id = widget.id;
     _title = widget.title;
     _content = widget.content;
+
+    volume = _aiSettings.volume;
+    pitch = _aiSettings.pitch;
+    speechRate = _aiSettings.speechRate;
+    langCode = _aiSettings.langCode;
+    languages = _aiSettings.languages;
     super.initState();
     init();
   }
@@ -214,7 +225,7 @@ class _MemoirDetailsScreenState extends State<MemoirDetailsScreen> {
                         Slider(
                           min: 0.0,
                           max: 1.0,
-                          value: volume,
+                          value: volume ?? 0,
                           onChanged: (value) {
                             setState(() {
                               volume = value;
@@ -224,7 +235,7 @@ class _MemoirDetailsScreenState extends State<MemoirDetailsScreen> {
                         Container(
                           margin: const EdgeInsets.only(left: 10),
                           child: Text(
-                              double.parse((volume).toStringAsFixed(2))
+                              double.parse((volume ?? 0).toStringAsFixed(2))
                                   .toString(),
                               style: const TextStyle(fontSize: 17)),
                         )
@@ -242,7 +253,7 @@ class _MemoirDetailsScreenState extends State<MemoirDetailsScreen> {
                         Slider(
                           min: 0.5,
                           max: 2.0,
-                          value: pitch,
+                          value: pitch ?? 0,
                           onChanged: (value) {
                             setState(() {
                               pitch = value;
@@ -252,7 +263,7 @@ class _MemoirDetailsScreenState extends State<MemoirDetailsScreen> {
                         Container(
                           margin: const EdgeInsets.only(left: 10),
                           child: Text(
-                              double.parse((pitch).toStringAsFixed(2))
+                              double.parse((pitch ?? 0).toStringAsFixed(2))
                                   .toString(),
                               style: const TextStyle(fontSize: 17)),
                         )
@@ -271,7 +282,7 @@ class _MemoirDetailsScreenState extends State<MemoirDetailsScreen> {
                           // activeColor: isDarkMode(context) ? green : black,
                           min: 0.0,
                           max: 1.0,
-                          value: speechRate,
+                          value: speechRate ?? 0,
                           onChanged: (value) {
                             setState(() {
                               speechRate = value;
@@ -281,7 +292,7 @@ class _MemoirDetailsScreenState extends State<MemoirDetailsScreen> {
                         Container(
                           margin: const EdgeInsets.only(left: 10),
                           child: Text(
-                              double.parse((speechRate).toStringAsFixed(2))
+                              double.parse((speechRate ?? 0).toStringAsFixed(2))
                                   .toString(),
                               style: const TextStyle(fontSize: 17)),
                         )
@@ -343,10 +354,10 @@ class _MemoirDetailsScreenState extends State<MemoirDetailsScreen> {
   }
 
   void initSetting() async {
-    await flutterTts.setVolume(volume);
-    await flutterTts.setPitch(pitch);
-    await flutterTts.setSpeechRate(speechRate);
-    await flutterTts.setLanguage(langCode);
+    await flutterTts.setVolume(volume ?? 0);
+    await flutterTts.setPitch(pitch ?? 0);
+    await flutterTts.setSpeechRate(speechRate ?? 0);
+    await flutterTts.setLanguage(langCode ?? '');
   }
 
   void _speak() async {
