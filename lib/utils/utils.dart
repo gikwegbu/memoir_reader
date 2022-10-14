@@ -187,11 +187,11 @@ showNotification(
   );
 }
 
-showText({required String message, Duration? duration}) {
-  _showAlert(message, _AlertType.message, d: duration);
+textNotification({required String message, Duration? duration}) {
+  _alertNotification(message, _AlertType.message, d: duration);
 }
 
-_showAlert(String message, _AlertType alert, {Duration? d}) {
+_alertNotification(String message, _AlertType alert, {Duration? d}) {
   var bgColor = Colors.black.withOpacity(.9);
   var duration = d ?? const Duration(seconds: 2);
 
@@ -216,11 +216,11 @@ _showAlert(String message, _AlertType alert, {Duration? d}) {
 }
 
 showSuccess({required String message}) {
-  _showAlert(message, _AlertType.success);
+  _alertNotification(message, _AlertType.success);
 }
 
 showError({required String message, Duration? duration}) {
-  _showAlert(message, _AlertType.error, d: duration);
+  _alertNotification(message, _AlertType.error, d: duration);
 }
 
 String errorMessageToString(List<String>? message) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memoir_reader/modules/home/home_screen.dart';
-import 'package:memoir_reader/modules/memoir/create_memoir_screen.dart';
+import 'package:memoir_reader/modules/memoir/components/create_memoir_screen.dart';
 import 'package:memoir_reader/modules/profile/view/profile_screen.dart';
 import 'package:memoir_reader/utils/widgets/text_utils.dart';
 

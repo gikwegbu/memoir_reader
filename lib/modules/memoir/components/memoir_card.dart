@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memoir_reader/modules/memoir/memoir_details_screen.dart';
+import 'package:memoir_reader/modules/memoir/view/memoir_details_screen.dart';
 import 'package:memoir_reader/utils/utils.dart';
 import 'package:memoir_reader/utils/widgets/text_utils.dart';
 import 'package:bot_toast/bot_toast.dart';
@@ -45,13 +45,11 @@ class MemoirCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                labelText(title, context),
-                // Add this delete to the preview screen, then when click, pops the screen
-                // Also include the edit button too, when clicked, pops the screen and takes you to the edit screen...
-              ],
+            labelText(
+              title,
+              context,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
             const Divider(),
             ySpace(height: 10),
@@ -73,7 +71,7 @@ class MemoirCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           subtext(
-                            "@$username",
+                            username.isNotEmpty ? "@$username" : '👽',
                             context,
                             fontWeight: FontWeight.bold,
                           ),

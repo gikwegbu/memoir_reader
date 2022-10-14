@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:memoir_reader/modules/dashboard/components/dashboard_screen_diplayer.dart';
+import 'package:memoir_reader/modules/memoir/viewModel/memoir_provider.dart';
 import 'package:memoir_reader/utils/const/colors.dart';
 import 'package:memoir_reader/utils/utils.dart';
+import 'package:provider/provider.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -15,6 +18,21 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   String _page = "home";
   final GlobalKey<CurvedNavigationBarState> _bottomNavigationKey = GlobalKey();
+
+  void _fetchMemoirs() {
+    context.read<MemoirProvider>().fetchMemoir();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // Used to remove the building faild to build widget stuff for trying to update context while widget is still building...
+    // WidgetsBinding.instance?.addPostFrameCallback(((timeStamp) {
+    SchedulerBinding.instance?.scheduleFrameCallback(((timeStamp) {
+      _fetchMemoirs();
+    }));
+  }
 
   @override
   Widget build(BuildContext context) {

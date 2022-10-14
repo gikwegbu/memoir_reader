@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memoir_reader/modules/components/custom_button.dart';
-import 'package:memoir_reader/modules/memoir/memoir_details_screen.dart';
+import 'package:memoir_reader/modules/memoir/view/memoir_details_screen.dart';
 import 'package:memoir_reader/modules/test_screen.dart';
 import 'package:memoir_reader/utils/utils.dart';
 import 'package:memoir_reader/utils/widgets/form_utils.dart';

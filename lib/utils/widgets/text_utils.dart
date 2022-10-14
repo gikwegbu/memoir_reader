@@ -113,6 +113,7 @@ Text labelText(
   TextOverflow? overflow,
   double? letterSpacing,
   double? height,
+  int? maxLines,
 }) {
   return Text(
     label,
@@ -120,6 +121,7 @@ Text labelText(
     textAlign: textAlign,
     overflow: overflow,
     softWrap: true,
+    maxLines: maxLines,
     style: TextStyle(
       // color: color ?? primary,
       color: color ?? (isDarkMode(context) ? Colors.white : Colors.black),

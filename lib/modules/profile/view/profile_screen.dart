@@ -409,7 +409,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return ProfileSettings(sheetKey: bottomSheetKey);
       // return const ProfileSettings();
       case 'privacy':
-        return const PrivacySettings();
+        return PrivacySettings(sheetKey: bottomSheetKey);
       case 'notification':
         return const NotificationSettings();
       case 'ai':

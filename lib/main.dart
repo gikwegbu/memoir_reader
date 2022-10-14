@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memoir_reader/config/routes.dart';
 import 'package:memoir_reader/modules/dashboard/dashboard_screen.dart';
+import 'package:memoir_reader/modules/memoir/viewModel/memoir_provider.dart';
 import 'package:memoir_reader/modules/profile/model/ai_settings_model.dart';
 import 'package:memoir_reader/modules/profile/model/profile_model.dart';
 import 'package:memoir_reader/modules/profile/viewModel/ai_settings_provider.dart';
@@ -41,6 +42,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => AiProvider()),
+        ChangeNotifierProvider(create: (_) => MemoirProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

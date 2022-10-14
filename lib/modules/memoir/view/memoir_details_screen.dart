@@ -4,12 +4,15 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:flutter/material.dart';
+import 'package:memoir_reader/modules/profile/model/ai_settings_model.dart';
+import 'package:memoir_reader/modules/profile/viewModel/ai_settings_provider.dart';
 import 'package:memoir_reader/utils/const/colors.dart';
 import 'package:memoir_reader/utils/utils.dart';
 import 'package:memoir_reader/utils/widgets/text_utils.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
+import 'package:provider/provider.dart';
 
 class MemoirDetailsScreen extends StatefulWidget {
   const MemoirDetailsScreen({
@@ -33,6 +36,7 @@ enum TtsState { playing, stopped, paused, continued }
 
 class _MemoirDetailsScreenState extends State<MemoirDetailsScreen> {
   GlobalKey<ExpandableBottomSheetState> bottomSheetKey = GlobalKey();
+  AiSettingsModel _aiSettings = AiSettingsModel();
 
   bool _isReading = false;
   bool _showFAB = true;
@@ -42,11 +46,11 @@ class _MemoirDetailsScreenState extends State<MemoirDetailsScreen> {
 
   // Voice Settings
   FlutterTts flutterTts = FlutterTts();
-  double volume = 1.0;
-  double pitch = 1.0;
-  double speechRate = 0.5;
+  double? volume;
+  double? pitch;
+  double? speechRate;
   List<String>? languages;
-  String langCode = "en-US";
+  String? langCode;
 
   TtsState ttsState = TtsState.stopped;
 
@@ -58,10 +62,17 @@ class _MemoirDetailsScreenState extends State<MemoirDetailsScreen> {
   @override
   void initState() {
     // TODO: implement initState
+    _aiSettings = context.read<AiProvider>().aiDetails;
     _isReading = false;
     _id = widget.id;
     _title = widget.title;
     _content = widget.content;
+
+    volume = _aiSettings.volume;
+    pitch = _aiSettings.pitch;
+    speechRate = _aiSettings.speechRate;
+    langCode = _aiSettings.langCode;
+    languages = _aiSettings.languages;
     super.initState();
     init();
   }
@@ -107,10 +118,6 @@ class _MemoirDetailsScreenState extends State<MemoirDetailsScreen> {
       print("Complete");
       _isReading = false;
       ttsState = TtsState.stopped;
-      // _showFAB = bottomSheetKey.currentState?.expansionStatus ==
-      //         ExpansionStatus.contracted
-      //     ? false
-      //     : false;
       setState(() {});
     });
 
@@ -156,176 +163,181 @@ class _MemoirDetailsScreenState extends State<MemoirDetailsScreen> {
         //required
         //This is the widget which will be overlapped by the bottom sheet.
         // Na here the child suppose dey naaaa
-        background: Container(
-          // color: Colors.blue[800],
-          padding: const EdgeInsets.symmetric(
-            vertical: 15,
-            horizontal: 10,
-          ),
-          child: labelText(
-            _content,
-            context,
-            fontSize: 14,
-            letterSpacing: 1,
-            height: 2,
-            fontWeight: FontWeight.w500,
+        background: SingleChildScrollView(
+          child: Container(
+            // color: Colors.blue[800],
+            padding: const EdgeInsets.symmetric(
+              vertical: 15,
+              horizontal: 10,
+            ),
+            child: labelText(
+              _content,
+              context,
+              fontSize: 14,
+              letterSpacing: 1,
+              height: 2,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
 
         //required
         //This is the content of the bottom sheet which will be extendable by dragging.
-        expandableContent: SizedBox(
-          // constraints: const BoxConstraints(maxHeight: 600),
-          child: SingleChildScrollView(
-            child: GestureDetector(
-              onTap: _toggleBottomSheet,
-              child: Container(
-                padding:
-                    const EdgeInsets.only(left: 15, right: 15, bottom: 58.0),
-                decoration: BoxDecoration(
-                  color: isDarkMode(context) ? black : grey,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
+        expandableContent: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+            child: Container(
+              padding: const EdgeInsets.only(left: 15, right: 15, bottom: 58.0),
+              decoration: const BoxDecoration(
+                // color: grey,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
                 ),
-                child: Column(
-                  children: [
-                    Container(
+              ),
+              child: Column(
+                children: [
+                  GestureDetector(
+                    onTap: _toggleBottomSheet,
+                    child: Container(
                       height: 8,
                       width: 55,
                       margin: const EdgeInsets.only(top: 20, bottom: 20),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: black,
+                        // color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                    Container(
-                      margin: const EdgeInsets.only(left: 10),
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            width: 80,
-                            child: labelText("Volume", context),
-                          ),
-                          Slider(
-                            min: 0.0,
-                            max: 1.0,
-                            value: volume,
-                            onChanged: (value) {
-                              setState(() {
-                                volume = value;
-                              });
-                            },
-                          ),
-                          Container(
-                            margin: const EdgeInsets.only(left: 10),
-                            child: Text(
-                                double.parse((volume).toStringAsFixed(2))
-                                    .toString(),
-                                style: const TextStyle(fontSize: 17)),
-                          )
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.only(left: 10),
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            width: 80,
-                            child: labelText("Pitch", context),
-                          ),
-                          Slider(
-                            min: 0.5,
-                            max: 2.0,
-                            value: pitch,
-                            onChanged: (value) {
-                              setState(() {
-                                pitch = value;
-                              });
-                            },
-                          ),
-                          Container(
-                            margin: const EdgeInsets.only(left: 10),
-                            child: Text(
-                                double.parse((pitch).toStringAsFixed(2))
-                                    .toString(),
-                                style: const TextStyle(fontSize: 17)),
-                          )
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.only(left: 10),
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            width: 80,
-                            child: labelText("Speech Rate", context),
-                          ),
-                          Slider(
-                            // activeColor: isDarkMode(context) ? green : black,
-                            min: 0.0,
-                            max: 1.0,
-                            value: speechRate,
-                            onChanged: (value) {
-                              setState(() {
-                                speechRate = value;
-                              });
-                            },
-                          ),
-                          Container(
-                            margin: const EdgeInsets.only(left: 10),
-                            child: Text(
-                                double.parse((speechRate).toStringAsFixed(2))
-                                    .toString(),
-                                style: const TextStyle(fontSize: 17)),
-                          )
-                        ],
-                      ),
-                    ),
-                    if (languages != null)
-                      Container(
-                        margin: const EdgeInsets.only(left: 10),
-                        child: Row(
-                          children: [
-                            labelText("Language", context),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            xSpace(),
-                            Expanded(
-                              child: DropdownButtonFormField<String>(
-                                focusColor: Colors.white,
-                                value: langCode,
-                                iconSize: 24,
-                                elevation: 16,
-                                iconEnabledColor: green,
-                                items: languages!.map<DropdownMenuItem<String>>(
-                                    (String? value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value!,
-                                    child: Text(
-                                      value,
-                                      style:
-                                          const TextStyle(color: Colors.black),
-                                    ),
-                                  );
-                                }).toList(),
-                                onChanged: (String? value) {
-                                  setState(() {
-                                    langCode = value!;
-                                  });
-                                },
-                              ),
-                            ),
-                            xSpace(),
-                          ],
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(left: 10),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 80,
+                          child: labelText("Volume", context),
                         ),
+                        Slider(
+                          min: 0.0,
+                          max: 1.0,
+                          value: volume ?? 0,
+                          onChanged: (value) {
+                            setState(() {
+                              volume = value;
+                            });
+                          },
+                        ),
+                        Container(
+                          margin: const EdgeInsets.only(left: 10),
+                          child: Text(
+                              double.parse((volume ?? 0).toStringAsFixed(2))
+                                  .toString(),
+                              style: const TextStyle(fontSize: 17)),
+                        )
+                      ],
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(left: 10),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 80,
+                          child: labelText("Pitch", context),
+                        ),
+                        Slider(
+                          min: 0.5,
+                          max: 2.0,
+                          value: pitch ?? 0,
+                          onChanged: (value) {
+                            setState(() {
+                              pitch = value;
+                            });
+                          },
+                        ),
+                        Container(
+                          margin: const EdgeInsets.only(left: 10),
+                          child: Text(
+                              double.parse((pitch ?? 0).toStringAsFixed(2))
+                                  .toString(),
+                              style: const TextStyle(fontSize: 17)),
+                        )
+                      ],
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(left: 10),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 80,
+                          child: labelText("Speech Rate", context),
+                        ),
+                        Slider(
+                          // activeColor: isDarkMode(context) ? green : black,
+                          min: 0.0,
+                          max: 1.0,
+                          value: speechRate ?? 0,
+                          onChanged: (value) {
+                            setState(() {
+                              speechRate = value;
+                            });
+                          },
+                        ),
+                        Container(
+                          margin: const EdgeInsets.only(left: 10),
+                          child: Text(
+                              double.parse((speechRate ?? 0).toStringAsFixed(2))
+                                  .toString(),
+                              style: const TextStyle(fontSize: 17)),
+                        )
+                      ],
+                    ),
+                  ),
+                  if (languages != null)
+                    Container(
+                      margin: const EdgeInsets.only(left: 10),
+                      child: Row(
+                        children: [
+                          labelText("Language", context),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          xSpace(),
+                          Expanded(
+                            child: DropdownButtonFormField<String>(
+                              focusColor: Colors.white,
+                              value: langCode,
+                              iconSize: 24,
+                              elevation: 16,
+                              iconEnabledColor: green,
+                              items: languages!.map<DropdownMenuItem<String>>(
+                                  (String? value) {
+                                return DropdownMenuItem<String>(
+                                  value: value!,
+                                  child: Text(
+                                    value,
+                                    // style: const TextStyle(color: Colors.black),
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (String? value) {
+                                setState(() {
+                                  langCode = value!;
+                                });
+                              },
+                            ),
+                          ),
+                          xSpace(),
+                        ],
                       ),
-                  ],
-                ),
+                    ),
+                ],
               ),
             ),
           ),
@@ -342,10 +354,10 @@ class _MemoirDetailsScreenState extends State<MemoirDetailsScreen> {
   }
 
   void initSetting() async {
-    await flutterTts.setVolume(volume);
-    await flutterTts.setPitch(pitch);
-    await flutterTts.setSpeechRate(speechRate);
-    await flutterTts.setLanguage(langCode);
+    await flutterTts.setVolume(volume ?? 0);
+    await flutterTts.setPitch(pitch ?? 0);
+    await flutterTts.setSpeechRate(speechRate ?? 0);
+    await flutterTts.setLanguage(langCode ?? '');
   }
 
   void _speak() async {
@@ -450,6 +462,7 @@ class _MemoirDetailsScreenState extends State<MemoirDetailsScreen> {
   void _toggleBottomSheet() {
     _bottomSheetStatus() ? _expandBottomSheet() : _contractBottomSheet();
     _showFAB = !_showFAB;
+    _showFAB = _bottomSheetStatus() ? false : true;
     setState(() {});
   }
 
@@ -472,6 +485,7 @@ class _MemoirDetailsScreenState extends State<MemoirDetailsScreen> {
               textStyle: const TextStyle(
                 fontSize: 12,
                 color: isLight,
+                
               ),
               showDuration: const Duration(seconds: 2),
               waitDuration: const Duration(seconds: 1),
@@ -507,5 +521,3 @@ class MemoirDetailsScreenArguements {
     required this.content,
   });
 }
-
-// Just like the indicator, use the bot toast to show this one too...

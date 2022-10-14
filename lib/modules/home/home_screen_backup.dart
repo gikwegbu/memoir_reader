@@ -3,12 +3,8 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:memoir_reader/modules/memoir/components/memoir_card.dart';
-import 'package:memoir_reader/modules/memoir/model/memoir_model.dart';
-import 'package:memoir_reader/modules/memoir/viewModel/memoir_provider.dart';
 import 'package:memoir_reader/utils/widgets/text_utils.dart';
-import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -21,51 +17,30 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Pagination? _pagination;
-  List<MemoirModel> _memoirData = <MemoirModel>[];
-  int _limit = 0;
-
-  void _loadData() {
-    _memoirData =
-        Provider.of<MemoirProvider>(context, listen: true).getMemoirData ?? [];
-    _pagination =
-        Provider.of<MemoirProvider>(context, listen: true).getPagination;
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
-  List<String> items = ["1", "2"];
+  List<String> items = ["1", "2", "3", "4", "5", "6", "7", "8"];
   final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
   void _onRefresh() async {
-    await context.read<MemoirProvider>().fetchMemoir();
+    // monitor network fetch
+    await Future.delayed(const Duration(milliseconds: 1000));
     // if failed,use refreshFailed()
     _refreshController.refreshCompleted();
   }
 
   void _onLoading() async {
-    int? _total = _pagination?.total ?? 0;
-    int? _currentLimit = _pagination?.limit ?? 0;
-    _limit = _currentLimit;
-
-    if (_limit < _total) {
-      await context.read<MemoirProvider>().fetchMemoir(limit: _limit + 10);
-      _refreshController.loadComplete();
-    } else {
-      _refreshController.loadComplete();
-    }
+    // monitor network fetch
+    await Future.delayed(const Duration(milliseconds: 1000));
+    // if failed,use loadFailed(),if no data return,use LoadNodata()
+    items.add((items.length + 1).toString());
+    items.add((items.length + 1).toString());
+    items.add((items.length + 1).toString());
     if (mounted) setState(() {});
+    _refreshController.loadComplete();
   }
 
   @override
   Widget build(BuildContext context) {
-    _loadData();
-
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: _appBar(),
@@ -79,11 +54,10 @@ class _HomeScreenState extends State<HomeScreen> {
           onRefresh: _onRefresh,
           onLoading:
               _onLoading, // Maker a request to BE to request for more data...
-          child: _memoirData.isEmpty
+          child: items.isEmpty
               ? Center(
                   child: labelText(
-                    // "All available memoirs 📝, will appear here. ${context.read<MemoirProvider>().isFetchingMemoir}",
-                    "All available memoirs 📝, will appear here. ${context.read<MemoirProvider>().getMemoirData}",
+                    "All available memoirs 📝, will appear here.",
                     context,
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
@@ -98,26 +72,22 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisSpacing: 10,
                   ),
                   itemBuilder: (c, index) {
-                    var _title = _memoirData[index].title;
-                    var _author = _memoirData[index].author;
-                    var _desc = _memoirData[index].description;
-                    var _date = _memoirData[index].publishedAt;
-                    var _id = _memoirData[index].url.toString();
                     return Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 5,
                         vertical: 5,
                       ),
                       child: MemoirCard(
-                        title: _title ?? '',
-                        content: _desc ?? '',
-                        id: _id,
-                        username: _author ?? '👽',
+                        title: "Our Temperature fades",
+                        content:
+                            "The sky is blue, but we don't usually notice ast it's filled with clouds, yet we are not aware of how we are killing our environment on a daily...",
+                        id: "sdkflajskdfjlasdkfa",
+                        username: 'George Ikwegbu',
                         createdAt: DateTime.now(),
                       ),
                     );
                   },
-                  itemCount: _memoirData.length,
+                  itemCount: items.length,
                 ),
         ),
       ),
