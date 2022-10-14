@@ -14,9 +14,7 @@ class ApiServices extends ApiService {
     final _dio = super.getDioWith();
     try {
       Response _response = await _dio.get(
-        // '${Apis.memoirApi}?access_key=$apiKey&categories=entertainment&languages=en',
         '${Apis.memoirApi}?access_key=$apiKey&categories=entertainment&languages=en&limit=$limit',
-        // 9688, 9690
         // options: Options(
         //   contentType: Headers.jsonContentType,
         //   headers: {
@@ -39,7 +37,6 @@ class ApiServices extends ApiService {
       //       }
       //   }
       // }
-      // ignore: prefer_if_null_operators
       var formatError = e.response!.data['error']['message'];
 
       showNotification(

@@ -7,6 +7,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:memoir_reader/modules/memoir/components/memoir_card.dart';
 import 'package:memoir_reader/modules/memoir/model/memoir_model.dart';
 import 'package:memoir_reader/modules/memoir/viewModel/memoir_provider.dart';
+import 'package:memoir_reader/utils/utils.dart';
 import 'package:memoir_reader/utils/widgets/text_utils.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -57,9 +58,12 @@ class _HomeScreenState extends State<HomeScreen> {
       await context.read<MemoirProvider>().fetchMemoir(limit: _limit + 10);
       _refreshController.loadComplete();
     } else {
-      _refreshController.loadComplete();
+      _refreshController.loadNoData();
     }
     if (mounted) setState(() {});
+    // await Future.delayed(const Duration(milliseconds: 1000));
+    // if (mounted) setState(() {});
+    // _refreshController.loadNoData();
   }
 
   @override
@@ -98,11 +102,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisSpacing: 10,
                   ),
                   itemBuilder: (c, index) {
-                    var _title = _memoirData[index].title;
-                    var _author = _memoirData[index].author;
-                    var _desc = _memoirData[index].description;
-                    var _date = _memoirData[index].publishedAt;
-                    var _id = _memoirData[index].url.toString();
+                    final _title = _memoirData[index].title;
+                    final _author = _memoirData[index].author;
+                    final _desc = _memoirData[index].description;
+                    final _date = _memoirData[index].publishedAt!;
+                    final _id = _memoirData[index].url.toString();
                     return Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 5,
@@ -112,8 +116,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         title: _title ?? '',
                         content: _desc ?? '',
                         id: _id,
-                        username: _author ?? '👽',
-                        createdAt: DateTime.now(),
+                        username: _author ?? '',
+                        createdAt: _date,
+                        // createdAt: shortDate(_date),
                       ),
                     );
                   },

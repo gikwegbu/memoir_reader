@@ -80,7 +80,7 @@ class MemoirCard extends StatelessWidget {
                     ],
                   ),
                   subtext(
-                    shortDate(createdAt),
+                    fullDate(createdAt),
                     context,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
