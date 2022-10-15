@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:memoir_reader/modules/memoir/model/custom_memoir_model.dart';
 import 'package:memoir_reader/modules/memoir/model/memoir_model.dart';
 import 'package:memoir_reader/modules/memoir/repo/memoir_service.dart';
 import 'package:memoir_reader/utils/utils.dart';
@@ -7,14 +9,17 @@ import 'package:tuple/tuple.dart';
 ApiServices _apiServices = ApiServices();
 
 class MemoirProvider extends ChangeNotifier {
+  static const String customMemoirBoxName = "customMemoirBox";
   bool _isFetchingMemoir = false;
   Pagination? _pagination;
   List<MemoirModel>? _memoirData;
+  List<CustomMemoirModel> _customMemoirData = <CustomMemoirModel>[];
 
   // Getters
   bool get isFetchingMemoir => _isFetchingMemoir;
   Pagination? get getPagination => _pagination;
   List<MemoirModel>? get getMemoirData => _memoirData;
+  List<CustomMemoirModel> get getCustomMemoirData => _customMemoirData;
 
   // Setters
   setIsFetchingMemoir(bool val) {
@@ -29,6 +34,14 @@ class MemoirProvider extends ChangeNotifier {
 
   setMemoirData(List<MemoirModel>? val) {
     _memoirData = val;
+    notifyListeners();
+  }
+
+  setCustomMemoirData(CustomMemoirModel val) {
+    var _box = Hive.box<dynamic>(customMemoirBoxName);
+    _customMemoirData.add(val);
+    _box.put('customMemoirDetailList', _customMemoirData);
+    var _ = _box.get('customMemoirDetailList');
     notifyListeners();
   }
 
@@ -59,5 +72,10 @@ class MemoirProvider extends ChangeNotifier {
     } finally {
       setIsFetchingMemoir(false);
     }
+  }
+
+  Future<bool> addCustomMemoir(dynamic parameter) async {
+    setCustomMemoirData(parameter);
+    return true;
   }
 }

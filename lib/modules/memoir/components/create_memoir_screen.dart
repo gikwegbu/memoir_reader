@@ -2,14 +2,19 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:memoir_reader/modules/components/custom_button.dart';
+import 'package:memoir_reader/modules/memoir/model/custom_memoir_model.dart';
 import 'package:memoir_reader/modules/memoir/view/memoir_details_screen.dart';
-import 'package:memoir_reader/modules/test_screen.dart';
+import 'package:memoir_reader/modules/memoir/viewModel/memoir_provider.dart';
+import 'package:memoir_reader/modules/profile/model/profile_model.dart';
+import 'package:memoir_reader/modules/profile/view/my_memoirs.dart';
+import 'package:memoir_reader/modules/profile/viewModel/profile_provider.dart';
 import 'package:memoir_reader/utils/utils.dart';
 import 'package:memoir_reader/utils/widgets/form_utils.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:bot_toast/bot_toast.dart';
+import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 
 class CreateMemoirScreen extends StatefulWidget {
   const CreateMemoirScreen({Key? key}) : super(key: key);
@@ -21,8 +26,19 @@ class CreateMemoirScreen extends StatefulWidget {
 class _CreateMemoirScreenState extends State<CreateMemoirScreen> {
   final _gbKey = GlobalKey<FormBuilderState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  ProfileModel? _userProfile;
+  CustomMemoirModel _memoirModel = CustomMemoirModel();
+  TextEditingController _titleController = TextEditingController();
+  TextEditingController _contentController = TextEditingController();
 
   var _formValues = {};
+
+  @override
+  void initState() {
+    _userProfile = context.read<ProfileProvider>().profileDetails;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,9 +61,10 @@ class _CreateMemoirScreenState extends State<CreateMemoirScreen> {
                       "Title",
                       form: FormBuilderTextField(
                         name: "Title",
-                        inputFormatters: [LengthLimitingTextInputFormatter(30)],
+                        // inputFormatters: [LengthLimitingTextInputFormatter(30)],
                         decoration: FormUtils.formDecoration(),
-                        maxLength: 30,
+                        controller: _titleController,
+                        // maxLength: 30,
                         style: FORM_STYLE,
                         onSaved: (value) => _formValues['title'] = value,
                         validator: FormBuilderValidators.compose(
@@ -67,6 +84,7 @@ class _CreateMemoirScreenState extends State<CreateMemoirScreen> {
                         //   LengthLimitingTextInputFormatter(1000)
                         // ],
                         decoration: FormUtils.formDecoration(),
+                        controller: _contentController,
                         maxLines: 10,
                         // maxLength: 1000,
                         style: FORM_STYLE,
@@ -79,9 +97,9 @@ class _CreateMemoirScreenState extends State<CreateMemoirScreen> {
                             ),
                             FormBuilderValidators.minLength(
                               context,
-                              50,
+                              200,
                               errorText:
-                                  "content should be at least 50 characters",
+                                  "content should be at least 200 characters",
                             ),
                           ],
                         ),
@@ -93,9 +111,8 @@ class _CreateMemoirScreenState extends State<CreateMemoirScreen> {
                       child: CustomButton(
                         title: "Post",
                         press: () {
-                          navigate(context, TestScreen.routeName);
                           if (_gbKey.currentState!.validate()) {
-                            print("Caching.....");
+                            _createMemoir();
                           }
                         },
                       ),
@@ -108,6 +125,28 @@ class _CreateMemoirScreenState extends State<CreateMemoirScreen> {
         ),
       ),
     );
+  }
+
+  void _createMemoir() async {
+    _gbKey.currentState?.save();
+    var uuid = Uuid();
+
+    var _res = await context.read<MemoirProvider>().addCustomMemoir(
+          _memoirModel.copyWith(
+            id: uuid.toString(),
+            author: _userProfile?.fullname,
+            username: _userProfile?.username,
+            title: _formValues['title'],
+            description: _formValues['content'],
+            publishedAt: DateTime.now(),
+          ),
+        );
+    if (_res) {
+      // clear the form...
+      _titleController.text = '';
+      _contentController.text = '';
+      navigate(context, MyMemoirScreenScreen.routeName);
+    }
   }
 
   Column _formBuilder(String label, {required Widget form, String? hint}) {

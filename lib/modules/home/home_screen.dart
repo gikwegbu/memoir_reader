@@ -39,7 +39,6 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
   }
 
-  List<String> items = ["1", "2"];
   final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 

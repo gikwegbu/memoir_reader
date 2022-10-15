@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:memoir_reader/modules/dashboard/dashboard_screen.dart';
+import 'package:memoir_reader/modules/memoir/model/custom_memoir_model.dart';
+import 'package:memoir_reader/modules/memoir/viewModel/memoir_provider.dart';
 import 'package:memoir_reader/modules/profile/model/profile_model.dart';
 import 'package:memoir_reader/modules/profile/viewModel/profile_provider.dart';
 import 'package:memoir_reader/utils/const/colors.dart';
@@ -21,6 +24,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     // Checking if there's token in the hive
     _checkUserProfile();
+    _loadCustomMemoir();
     super.initState();
   }
 
@@ -33,6 +37,13 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.pop(context);
     });
     // navigateAndClearPrev(context, Dashboard.ro);
+  }
+
+  void _loadCustomMemoir() async {
+    var _customMemoir = await getCustomMemoirList();
+    for (var element in _customMemoir) {
+      context.read<MemoirProvider>().setCustomMemoirData(element);
+    }
   }
 
   @override

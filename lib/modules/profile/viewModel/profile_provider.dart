@@ -5,7 +5,7 @@ import 'package:memoir_reader/utils/utils.dart';
 // import 'package:tuple/tuple.dart';
 
 class ProfileProvider extends ChangeNotifier {
-  static const String _profileBoxName = "profileBox";
+  static const String profileBoxName = "profileBox";
 
   bool _isUpdateingProfile = false;
   ProfileModel _profileDetails = ProfileModel();
@@ -23,11 +23,12 @@ class ProfileProvider extends ChangeNotifier {
   }
 
   setUpdateProfile(ProfileModel val) async {
-    var _box = Hive.box<ProfileModel>(_profileBoxName);
-    _box.put('profileDetails', val);
+    _profileDetails = val;
+    var _box = Hive.box<ProfileModel>(profileBoxName);
+    _box.put('profileDetails', _profileDetails);
 
     var _ = _box.get('profileDetails');
-    _profileDetails = val;
+    // _profileDetails = val;
     // print(_?.toJson());
     showNotification(
       message: 'Profile Updated Successfully!',

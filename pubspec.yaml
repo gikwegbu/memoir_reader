@@ -35,6 +35,7 @@ dependencies:
   tuple: ^2.0.0
   dio: ^4.0.0
   pretty_dio_logger: ^1.1.1
+  uuid: ^3.0.6
 
 
   cupertino_icons: ^1.0.2

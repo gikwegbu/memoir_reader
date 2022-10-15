@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memoir_reader/config/routes.dart';
 import 'package:memoir_reader/modules/dashboard/dashboard_screen.dart';
+import 'package:memoir_reader/modules/memoir/model/custom_memoir_model.dart';
 import 'package:memoir_reader/modules/memoir/viewModel/memoir_provider.dart';
 import 'package:memoir_reader/modules/profile/model/ai_settings_model.dart';
 import 'package:memoir_reader/modules/profile/model/profile_model.dart';
@@ -26,9 +27,11 @@ Future<void> main() async {
   await Hive.initFlutter('${appDocumentDirectory.path}/hiveDb');
   Hive.registerAdapter<ProfileModel>(ProfileModelAdapter()); // Type 0
   Hive.registerAdapter<AiSettingsModel>(AiSettingsModelAdapter()); // Type 1
+  Hive.registerAdapter<CustomMemoirModel>(CustomMemoirModelAdapter()); // Type 2
 
-  await Hive.openBox<ProfileModel>("profileBox");
-  await Hive.openBox<AiSettingsModel>("aiBox");
+  await Hive.openBox<ProfileModel>(ProfileProvider.profileBoxName);
+  await Hive.openBox<AiSettingsModel>(AiProvider.aiBoxName);
+  await Hive.openBox<dynamic>(MemoirProvider.customMemoirBoxName);
   runApp(const MyApp());
 }
 

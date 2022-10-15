@@ -4,7 +4,10 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:memoir_reader/modules/memoir/components/memoir_card.dart';
+import 'package:memoir_reader/modules/memoir/model/custom_memoir_model.dart';
+import 'package:memoir_reader/modules/memoir/viewModel/memoir_provider.dart';
 import 'package:memoir_reader/utils/widgets/text_utils.dart';
+import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class MyMemoirScreenScreen extends StatefulWidget {
@@ -19,7 +22,24 @@ class MyMemoirScreenScreen extends StatefulWidget {
 }
 
 class _MyMemoirScreenScreenState extends State<MyMemoirScreenScreen> {
-  List<String> items = ["1", "2", "3", "4", "5", "6", "7", "8"];
+  List<CustomMemoirModel> _customMemoirData = <CustomMemoirModel>[];
+
+  void _loadData() {
+    _customMemoirData =
+        List.from(context.read<MemoirProvider>().getCustomMemoirData.reversed);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    _customMemoirData = List.from(
+        Provider.of<MemoirProvider>(context, listen: false)
+            .getCustomMemoirData
+            .reversed);
+    super.initState();
+  }
+
+  List<String> items = ["1", "2"];
   final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
@@ -27,22 +47,19 @@ class _MyMemoirScreenScreenState extends State<MyMemoirScreenScreen> {
     // monitor network fetch
     await Future.delayed(const Duration(milliseconds: 1000));
     // if failed,use refreshFailed()
+    _loadData();
     _refreshController.refreshCompleted();
   }
 
   void _onLoading() async {
     // monitor network fetch
     await Future.delayed(const Duration(milliseconds: 1000));
-    // if failed,use loadFailed(),if no data return,use LoadNodata()
-    items.add((items.length + 1).toString());
-    items.add((items.length + 1).toString());
-    items.add((items.length + 1).toString());
-    if (mounted) setState(() {});
-    _refreshController.loadComplete();
+    _refreshController.loadNoData();
   }
 
   @override
   Widget build(BuildContext context) {
+    // _loadData();
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: _appBar(),
@@ -56,7 +73,7 @@ class _MyMemoirScreenScreenState extends State<MyMemoirScreenScreen> {
           onRefresh: _onRefresh,
           onLoading:
               _onLoading, // Maker a request to BE to request for more data...
-          child: items.isEmpty
+          child: _customMemoirData.isEmpty
               ? Center(
                   child: labelText(
                     "All your created memoirs 📝, will appear here.",
@@ -74,22 +91,29 @@ class _MyMemoirScreenScreenState extends State<MyMemoirScreenScreen> {
                     mainAxisSpacing: 10,
                   ),
                   itemBuilder: (c, index) {
+                    final _id = _customMemoirData[index].id.toString();
+                    final _title = _customMemoirData[index].title.toString();
+                    final _author = _customMemoirData[index].author.toString();
+                    final _content =
+                        _customMemoirData[index].description.toString();
+                    final _createdAt = _customMemoirData[index].publishedAt;
+                    final _username =
+                        _customMemoirData[index].username.toString();
                     return Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 5,
                         vertical: 5,
                       ),
                       child: MemoirCard(
-                        title: "Our Temperature fades",
-                        content:
-                            "The sky is blue, but we don't usually notice ast it's filled with clouds, yet we are not aware of how we are killing our environment on a daily...",
-                        id: "sdkflajskdfjlasdkfa",
-                        username: 'George Ikwegbu',
-                        createdAt: DateTime.now(),
+                        title: _title,
+                        content: _content,
+                        id: _id,
+                        username: _username,
+                        createdAt: _createdAt!,
                       ),
                     );
                   },
-                  itemCount: items.length,
+                  itemCount: _customMemoirData.length,
                 ),
         ),
       ),

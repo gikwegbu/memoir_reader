@@ -5,8 +5,12 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dialogs/flutter_dialogs.dart';
 import 'package:hive/hive.dart';
+import 'package:memoir_reader/modules/memoir/model/custom_memoir_model.dart';
+import 'package:memoir_reader/modules/memoir/viewModel/memoir_provider.dart';
 import 'package:memoir_reader/modules/profile/model/ai_settings_model.dart';
 import 'package:memoir_reader/modules/profile/model/profile_model.dart';
+import 'package:memoir_reader/modules/profile/viewModel/ai_settings_provider.dart';
+import 'package:memoir_reader/modules/profile/viewModel/profile_provider.dart';
 import 'package:memoir_reader/utils/const/image_url.dart';
 import 'package:nanoid/nanoid.dart';
 import 'package:intl/intl.dart';
@@ -379,18 +383,47 @@ extension StripWhiteSpace on String {
 }
 
 Future<ProfileModel> getUserProfileDetails() async {
-  var box = Hive.box<ProfileModel>('profileBox');
+  var box = Hive.box<ProfileModel>(ProfileProvider.profileBoxName);
   return box.get('profileDetails') != null
       ? box.get('profileDetails') as ProfileModel
       : ProfileModel();
 }
 
 Future<AiSettingsModel> getAiSettings() async {
-  var box = Hive.box<AiSettingsModel>('aiBox');
+  var box = Hive.box<AiSettingsModel>(AiProvider.aiBoxName);
   return box.get('aiDetails') != null
       ? box.get('aiDetails') as AiSettingsModel
       : AiSettingsModel();
 }
+
+// Future<CustomMemoirModel> getCustomMemoirList() async {
+//   var box = Hive.box<CustomMemoirModel>(MemoirProvider.customMemoirBoxName);
+//   print("George::: ${box.get('customMemoirDetailList')}");
+//   return box.get('customMemoirDetailList') != null
+//       ? box.get('customMemoirDetailList') as CustomMemoirModel
+//       : CustomMemoirModel();
+// }
+Future getCustomMemoirList() async {
+  var box = Hive.box<dynamic>(MemoirProvider.customMemoirBoxName);
+  // print("Hello:::: ${box.get('customMemoirDetailList')}");
+  return box.get('customMemoirDetailList') ?? null;
+}
+// Future<List<CustomMemoirModel>?> getCustomMemoirList() async {
+//   var box = Hive.box<dynamic>(MemoirProvider.customMemoirBoxName);
+//   // Hive.box<List<CustomMemoirModel>>(MemoirProvider.customMemoirBoxName);
+//   // box.get('customMemoirDetailList') != null
+//   // ? box.get('customMemoirDetailList') as List<CustomMemoirModel>
+//   // : [CustomMemoirModel()];
+//   print("Hello:::: ${box.get('customMemoirDetailList')}");
+//   return null;
+// }
+// Future<List<CustomMemoirModel>> getCustomMemoirList() async {
+//   var box =
+//       Hive.box<List<CustomMemoirModel>>(MemoirProvider.customMemoirBoxName);
+//   return box.get('customMemoirDetailList') != null
+//       ? box.get('customMemoirDetailList') as List<CustomMemoirModel>
+//       : [CustomMemoirModel()];
+// }
 
 Future<bool> LogoutUser(context) async {
   final res = await showDialog(
