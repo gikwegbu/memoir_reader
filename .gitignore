@@ -48,3 +48,6 @@ app.*.map.json
 
 # Ignoring Environment variables
 env.confif.dart
+
+# Signing Keys
+.jks

@@ -172,7 +172,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundImage: AssetImage(
           // 'https://media.istockphoto.com/photos/studio-portrait-of-attractive-20-year-old-bearded-man-picture-id1351147752?b=1&k=20&m=1351147752&s=170667a&w=0&h=txEdYegsKceJkltlTnz0hVdaX6wjlDL_vWAjEC_a6Ys=',
           // ImageUtils.dp,
-          _userProfile.imageUrl ?? ImageUtils.dp,
+          _userProfile.imageUrl ?? ImageUtils.m1,
         ),
       ),
     );
@@ -291,6 +291,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
             icon: Icons.bookmark_add,
             type: 'memoir',
           ),
+          ySpace(),
+          const Divider(),
+          ySpace(height: 10),
+          _profileItem(
+            title: 'Logout',
+            subTitle: 'Click to log out of the application',
+            icon: Icons.power_settings_new_outlined,
+            type: 'logout',
+          ),
           ySpace(height: 10),
         ],
       ),
@@ -330,9 +339,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }) {
     return InkWell(
       onTap: () {
-        type == 'memoir'
-            ? navigate(context, MyMemoirScreenScreen.routeName)
-            : _openBottomSheet(item);
+        // type == 'memoir'
+        //     ? navigate(context, MyMemoirScreenScreen.routeName)
+        //     : _openBottomSheet(item);
+        switch (type) {
+          case "memoir":
+            navigate(context, MyMemoirScreenScreen.routeName);
+            break;
+          case "logout":
+            LogoutUser(context);
+            break;
+          default:
+            _openBottomSheet(item);
+        }
       },
       child: Container(
         width: double.infinity,
@@ -358,7 +377,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: Colors.white,
                   ),
                 ),
-                xSpace(width: 5),
+                xSpace(width: 10),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -413,9 +432,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       case 'notification':
         return const NotificationSettings();
       case 'ai':
-        return  AiSettings(sheetKey: bottomSheetKey);
+        return AiSettings(sheetKey: bottomSheetKey);
       case 'avatar':
-        return  AvatarSettings(sheetKey: bottomSheetKey);
+        return AvatarSettings(sheetKey: bottomSheetKey);
       default:
         return Container();
     }

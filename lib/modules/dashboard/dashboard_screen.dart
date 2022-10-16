@@ -67,7 +67,7 @@ class _DashboardState extends State<Dashboard> {
             _navSwitcher(index);
           },
         ),
-        body: Container(
+        body: SizedBox(
           // color: Colors.blueAccent,
           width: double.infinity,
           child: Column(

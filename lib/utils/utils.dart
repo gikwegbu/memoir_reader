@@ -436,7 +436,7 @@ Future<bool> LogoutUser(context) async {
             backgroundColor: black,
             insetPadding: const EdgeInsets.all(10),
             title: labelText(
-              "Are you sure you want to quit?",
+              "Are you sure you want to quit?, this will clear all personal data 😔.",
               context,
               fontSize: 14,
               fontWeight: FontWeight.bold,
