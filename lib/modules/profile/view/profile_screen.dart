@@ -347,7 +347,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             navigate(context, MyMemoirScreenScreen.routeName);
             break;
           case "logout":
-            LogoutUser(context);
+            logoutUser(context);
             break;
           default:
             _openBottomSheet(item);

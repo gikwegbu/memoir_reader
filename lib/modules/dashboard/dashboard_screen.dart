@@ -37,7 +37,7 @@ class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async => LogoutUser(context),
+      onWillPop: () async => logoutUser(context),
       child: Scaffold(
         bottomNavigationBar: CurvedNavigationBar(
           color:

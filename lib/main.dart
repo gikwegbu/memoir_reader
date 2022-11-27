@@ -53,24 +53,10 @@ class MyApp extends StatelessWidget {
         builder: BotToastInit(),
         navigatorObservers: [BotToastNavigatorObserver()],
         theme: ThemeData(
-          // primaryColor: Colors.red,
-          // primaryColorLight: Colors.green,
-          // primarySwatch: Colors.blue,
           primarySwatch: CustomColor.kToDark,
           brightness: Brightness.light,
-          // theme: ThemeData(
-          //   brightness: Brightness.light,
-          //   primaryColor: Colors.red,
-          // ),
-          // darkTheme: ThemeData(
-          //   brightness: Brightness.dark,
-          // ),
         ),
         darkTheme: ThemeData(
-          // scaffoldBackgroundColor: Colors.black,
-          // primaryColor: Colors.red,
-          // primaryColorDark: Colors.green,
-          // primarySwatch: Colors.red,
           primarySwatch: CustomColor.kToDark,
           brightness: Brightness.dark,
           inputDecorationTheme: const InputDecorationTheme(

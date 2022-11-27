@@ -5,7 +5,6 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dialogs/flutter_dialogs.dart';
 import 'package:hive/hive.dart';
-import 'package:memoir_reader/modules/memoir/model/custom_memoir_model.dart';
 import 'package:memoir_reader/modules/memoir/viewModel/memoir_provider.dart';
 import 'package:memoir_reader/modules/profile/model/ai_settings_model.dart';
 import 'package:memoir_reader/modules/profile/model/profile_model.dart';
@@ -396,36 +395,13 @@ Future<AiSettingsModel> getAiSettings() async {
       : AiSettingsModel();
 }
 
-// Future<CustomMemoirModel> getCustomMemoirList() async {
-//   var box = Hive.box<CustomMemoirModel>(MemoirProvider.customMemoirBoxName);
-//   print("George::: ${box.get('customMemoirDetailList')}");
-//   return box.get('customMemoirDetailList') != null
-//       ? box.get('customMemoirDetailList') as CustomMemoirModel
-//       : CustomMemoirModel();
-// }
 Future getCustomMemoirList() async {
   var box = Hive.box<dynamic>(MemoirProvider.customMemoirBoxName);
   // print("Hello:::: ${box.get('customMemoirDetailList')}");
   return box.get('customMemoirDetailList') ?? null;
 }
-// Future<List<CustomMemoirModel>?> getCustomMemoirList() async {
-//   var box = Hive.box<dynamic>(MemoirProvider.customMemoirBoxName);
-//   // Hive.box<List<CustomMemoirModel>>(MemoirProvider.customMemoirBoxName);
-//   // box.get('customMemoirDetailList') != null
-//   // ? box.get('customMemoirDetailList') as List<CustomMemoirModel>
-//   // : [CustomMemoirModel()];
-//   print("Hello:::: ${box.get('customMemoirDetailList')}");
-//   return null;
-// }
-// Future<List<CustomMemoirModel>> getCustomMemoirList() async {
-//   var box =
-//       Hive.box<List<CustomMemoirModel>>(MemoirProvider.customMemoirBoxName);
-//   return box.get('customMemoirDetailList') != null
-//       ? box.get('customMemoirDetailList') as List<CustomMemoirModel>
-//       : [CustomMemoirModel()];
-// }
 
-Future<bool> LogoutUser(context) async {
+Future<bool> logoutUser(context) async {
   final res = await showDialog(
     context: context,
     barrierDismissible: false,
@@ -433,7 +409,6 @@ Future<bool> LogoutUser(context) async {
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
           return AlertDialog(
-            backgroundColor: black,
             insetPadding: const EdgeInsets.all(10),
             title: labelText(
               "Are you sure you want to quit?, this will clear all personal data 😔.",

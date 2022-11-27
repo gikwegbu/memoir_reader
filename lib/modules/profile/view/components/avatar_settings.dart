@@ -137,9 +137,11 @@ class _AvatarSettingsState extends State<AvatarSettings> {
         margin: const EdgeInsets.all(9),
         padding: const EdgeInsets.all(9),
         decoration: BoxDecoration(
-          // color: _selectedAvatarIndex == index ? black : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: black, width: 1, style: BorderStyle.solid),
+          border: Border.all(
+              color: _selectedAvatarId == id ? green : black,
+              width: 1,
+              style: BorderStyle.solid),
           image: DecorationImage(
             image: AssetImage(file),
             fit: BoxFit.fill,
