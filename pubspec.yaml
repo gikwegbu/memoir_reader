@@ -3,7 +3,7 @@ description: An AI based application software that allows users to listen to mem
 
 publish_to: 'none'
 
-version: 2.0.0+2
+version: 2.0.0+3
 
 environment:
   sdk: ">=2.16.2 <3.0.0"
